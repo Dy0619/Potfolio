@@ -1,0 +1,23 @@
+# D.Lune 포트폴리오
+
+`index.html`을 열면 포트폴리오가 실행됩니다.
+
+프로젝트의 **사이트 방문** 버튼도 사용하려면 `index.html`과 `projects` 폴더를 같은 위치에 보관해주세요.
+
+```text
+index.html
+projects/
+  fresh-note.html
+  cue.html
+assets/
+  profile-photo.jpg
+```
+
+- `projects/fresh-note.html`: 업로드한 최신 Fresh Note 원본
+- `projects/cue.html`: 업로드한 최신 CUE 원본
+- 프로젝트 소개·상세 설명·화면 캡처와 폴더 썸네일은 이 버전에 맞춰 업데이트했습니다.
+- 포트폴리오의 사진과 미리보기 이미지는 `index.html`에도 포함되어 있습니다.
+
+GitHub에서 **Code → Download ZIP**으로 전체 파일을 받아 압축을 푼 뒤 실행하면 프로젝트 연결 경로가 유지됩니다. 웹에 배포할 때도 같은 폴더 구조를 유지해주세요.
+
+Fresh Note의 관리 기록과 CUE의 MY CUE 기록은 사용하는 브라우저에 저장됩니다. 다른 기기나 브라우저로 자동 동기화되지 않으므로 각 앱의 내보내기·백업 기능으로 보관해주세요.
