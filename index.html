@@ -5,6 +5,22 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#0b1426">
 <title>D.Lune · Reactive Water</title>
+<script>
+(()=>{
+  const key='dlune-intro-seen-v1';
+  let seen=false;
+  try{seen=localStorage.getItem(key)==='1';}catch{}
+  if(!seen){try{seen=sessionStorage.getItem(key)==='1';}catch{}}
+  window.__dlIntroSeen=seen;
+  if(seen)document.documentElement.classList.add('intro-seen');
+})();
+</script>
+<style>
+html.intro-seen #opening{display:none}
+html.intro-seen body.is-intro{overflow:auto}
+html.intro-seen main,body.is-return-visit main{opacity:1;transition:none}
+</style>
+
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230b1426'/%3E%3Cpath d='M41 10A24 24 0 1 0 52 49A22 22 0 0 1 41 10Z' fill='%23e7c58e'/%3E%3C/svg%3E">
 
 <style>
@@ -1337,14 +1353,6 @@ body.ready:not(.is-intro) .finale-moon{visibility:visible}
     <button class="nav-link" data-go="1" aria-label="프로젝트">WORKS</button>
     <button class="nav-link" data-go="3" aria-label="연락처">CONTACT</button>
 
-    <select id="seasonSelect" aria-label="계절 미리보기">
-      <option value="auto">현재 계절</option>
-      <option value="spring">봄 미리보기</option>
-      <option value="summer">여름 미리보기</option>
-      <option value="autumn">가을 미리보기</option>
-      <option value="winter">겨울 미리보기</option>
-    </select>
-
     <button class="round" id="visualButton"
       aria-label="별빛과 배경 움직임 끄기" aria-pressed="true" title="별빛과 배경 움직임 끄기">≋</button>
     <button class="round" id="musicButton"
@@ -2609,7 +2617,7 @@ function resize(){
     canvas.getContext('2d').setTransform(DPR,0,0,DPR,0,0);
   });
 
-  if(changed)buildParticles();
+  if(changed&&introRunning)buildParticles();
 
   scheduleLine();
   wake();
@@ -2661,8 +2669,15 @@ function drawShape(context,x,y,r,angle,color){
   context.restore();
 }
 
-function completeIntro(){
-  if(!introRunning)return;
+function rememberIntroVisit(){
+  window.__dlIntroSeen=true;
+  try{localStorage.setItem('dlune-intro-seen-v1','1');}
+  catch{try{sessionStorage.setItem('dlune-intro-seen-v1','1');}catch{}}
+}
+
+function completeIntro({returning=false}={}){
+  if(!introRunning&&!returning)return;
+  rememberIntroVisit();
 
   introRunning=false;
   pageTurning=false;
@@ -2679,7 +2694,9 @@ function completeIntro(){
   document.querySelector('header').inert=false;
 
   document.body.classList.remove('is-intro');
-  document.body.classList.add('ready','is-paper-entry');
+  document.body.classList.add('ready');
+  document.body.classList.toggle('is-paper-entry',!returning);
+  document.body.classList.toggle('is-return-visit',returning);
 
   observeFolders();
   scheduleLine();
@@ -2693,7 +2710,9 @@ function completeIntro(){
       ?introFocus
       :$('#explore');
 
-  target.focus({preventScroll:true});
+  if(!returning)target.focus({preventScroll:true});
+  scheduleDepth();
+  wake();
 }
 
 async function turnIntroPage(){
@@ -2910,6 +2929,8 @@ function drawIntro(now){
 }
 
 function startIntro(){
+  document.documentElement.classList.remove('intro-seen');
+  document.body.classList.remove('is-return-visit');
   introVersion++;
   clearArrivals();
   lightNodes.forEach(state=>{
@@ -2950,9 +2971,7 @@ function startIntro(){
   opening.hidden=false;
   $('#introCaption').style.opacity=0;
 
-  seasonKey=$('#seasonSelect').value==='auto'
-    ?autoSeason()
-    :$('#seasonSelect').value;
+  seasonKey=autoSeason();
 
   $('#seasonLabel').textContent=
     `${seasonKey.toUpperCase()} IN MOTION · ${seasons[seasonKey].name}`;
@@ -2974,7 +2993,6 @@ function skipIntro(){
 
 $('#skipIntro').addEventListener('click',skipIntro);
 $('#replayButton').addEventListener('click',startIntro);
-$('#seasonSelect').addEventListener('change',startIntro);
 
 /* 중앙 고정 · 위쪽으로만 자라는 무지개 비주얼라이저 */
 let visual=true;
@@ -3349,10 +3367,14 @@ addEventListener('resize',scheduleDepth,{passive:true});
 motion.addEventListener('change',scheduleDepth);
 scheduleDepth();
 
-/* 시작 */
+/* 시작: 첫 방문만 인트로, 재방문은 바로 본문 */
 syncMascot();
 resize();
-startIntro();
+if(window.__dlIntroSeen){
+  completeIntro({returning:true});
+}else{
+  startIntro();
+}
 startMusic();
 </script>
 <!-- 아래 전체를 기존 HTML의 </body> 바로 앞에 한 번만 붙여넣으세요. -->
