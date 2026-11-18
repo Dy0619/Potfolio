@@ -1370,11 +1370,11 @@ body.visual-paused .project-peek.peek-cue{transform:rotate(6deg)!important}
 /* 페이지 중앙에 고정된 달: 글과 폴더 아래에서 읽기 진행을 보여줍니다. */
 .central-moon{position:fixed;left:50%;top:50%;width:clamp(360px,38vw,540px);aspect-ratio:1;transform:translate(-50%,-50%);z-index:0;pointer-events:none;visibility:hidden;--moon-glow:.1}
 body.ready:not(.is-intro) .central-moon{visibility:visible}
-.central-moon::before{content:"";position:absolute;inset:-24%;border-radius:50%;background:radial-gradient(circle,#fff1cc60 16%,#e8cf9120 43%,transparent 68%);opacity:var(--moon-glow);pointer-events:none}
+.central-moon::before{content:"";position:absolute;inset:-24%;border-radius:50%;background:radial-gradient(circle,transparent 35%,#e6b76c18 48%,transparent 66%);opacity:var(--moon-glow);pointer-events:none}
 .central-moon svg{position:relative;display:block;width:100%;height:100%}
-.central-moon-dark{fill:#c4bda4;fill-opacity:.12}
-.central-moon-lit{opacity:.9}
-.central-moon-outline{fill:none;stroke:#fff3d4;stroke-opacity:.42;stroke-width:.18}
+.central-moon-dark{fill:#050b15;fill-opacity:.46}
+.central-moon-lit{opacity:.88;filter:drop-shadow(0 0 5px #e9b66460) drop-shadow(0 0 14px #bd874035)}
+.central-moon-outline{fill:none;stroke:#c49f64;stroke-opacity:.07;stroke-width:.12}
 body.visual-paused .central-moon::before{opacity:.06}
 .track{opacity:.55}
 .track-head{opacity:.75}
@@ -1384,8 +1384,8 @@ body.visual-paused .central-moon::before{opacity:.06}
 @media(max-width:700px){
  .central-moon{width:clamp(240px,64vw,290px)}
  .central-moon::before{inset:-12%}
- .central-moon-lit{opacity:.74}
- .central-moon-dark{fill-opacity:.1}
+ .central-moon-lit{opacity:.8;filter:drop-shadow(0 0 4px #e9b66450)}
+ .central-moon-dark{fill-opacity:.4}
  .archive-ending{min-height:max(320px,54svh);padding:60px 15px 34px}
  .archive-ending p{font-size:11px}
  .archive-ending>span{font-size:7px}
@@ -1400,13 +1400,14 @@ body.visual-paused .central-moon::before{opacity:.06}
 <div class="central-moon" id="centralMoon" role="img" aria-label="초승달 · 읽기 진행 0%">
   <svg viewBox="0 0 100 100" aria-hidden="true" focusable="false">
     <defs>
-      <radialGradient id="centralMoonLight" cx="35%" cy="28%" r="80%">
-        <stop offset="0" stop-color="#fffef4"/><stop offset=".48" stop-color="#f5edda"/><stop offset=".8" stop-color="#e1d5ba"/><stop offset="1" stop-color="#b4a78c"/>
+      <radialGradient id="centralMoonLight" cx="50%" cy="50%" r="50%">
+        <stop offset="0" stop-color="#80603b" stop-opacity=".06"/><stop offset=".7" stop-color="#b58b51" stop-opacity=".13"/><stop offset=".91" stop-color="#e4bd7e" stop-opacity=".3"/><stop offset=".985" stop-color="#ffe5af" stop-opacity=".65"/><stop offset="1" stop-color="#fff1cb" stop-opacity=".92"/>
       </radialGradient>
       <mask id="centralMoonMask" maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="100">
         <path id="centralMoonPhase" transform="translate(100 0) scale(-1 1)" fill="white" d="M50 8 A42 42 0 0 1 50 92 A33.6 42 0 0 0 50 8 Z"/>
       </mask>
       <clipPath id="centralMoonDisc"><circle cx="50" cy="50" r="42"/></clipPath>
+      <filter id="centralMoonRimWisps" x="-15%" y="-15%" width="130%" height="130%"><feTurbulence type="fractalNoise" baseFrequency=".22" numOctaves="3" seed="23" result="noise"/><feDisplacementMap in="SourceGraphic" in2="noise" scale="1.8" xChannelSelector="R" yChannelSelector="G"/><feGaussianBlur stdDeviation=".16"/></filter>
       <filter id="centralMoonSoftSurface" x="-15%" y="-15%" width="130%" height="130%"><feGaussianBlur stdDeviation="1.35"/></filter>
       <filter id="centralMoonGrain" x="0" y="0" width="100%" height="100%">
         <feTurbulence type="fractalNoise" baseFrequency=".48" numOctaves="3" seed="17"/>
@@ -1416,12 +1417,16 @@ body.visual-paused .central-moon::before{opacity:.06}
     <circle class="central-moon-dark" cx="50" cy="50" r="42"/>
     <g class="central-moon-lit" mask="url(#centralMoonMask)">
       <circle cx="50" cy="50" r="42" fill="url(#centralMoonLight)"/>
-      <g fill="#8a806f" opacity=".1" filter="url(#centralMoonSoftSurface)">
+      <g fill="#9d7b47" opacity=".065" filter="url(#centralMoonSoftSurface)">
         <path d="M28 27q7-6 14-1t1 13q-10 4-17-3t2-9M53 44q7-10 16-5t5 16q-7 10-18 4t-3-15M28 62q7-8 15-1t-2 13q-12 1-13-12"/>
         <ellipse cx="63" cy="25" rx="6" ry="4"/><ellipse cx="71" cy="66" rx="5" ry="7"/>
         <circle cx="49" cy="76" r="3"/><circle cx="24" cy="49" r="3"/>
       </g>
-      <g clip-path="url(#centralMoonDisc)" opacity=".07"><rect x="8" y="8" width="84" height="84" filter="url(#centralMoonGrain)"/></g>
+      <g clip-path="url(#centralMoonDisc)" opacity=".035"><rect x="8" y="8" width="84" height="84" filter="url(#centralMoonGrain)"/></g>
+      <g clip-path="url(#centralMoonDisc)">
+        <circle cx="50" cy="50" r="41.5" fill="none" stroke="#e9ba76" stroke-width="1.7" opacity=".34" filter="url(#centralMoonRimWisps)"/>
+      </g>
+      <circle cx="50" cy="50" r="41.9" fill="none" stroke="#ffe7b2" stroke-width=".13" opacity=".9"/>
     </g>
     <circle class="central-moon-outline" cx="50" cy="50" r="42"/>
   </svg>
@@ -3471,7 +3476,7 @@ function scheduleDepth(){
   const edge=terminator<.001?'L50 8':`A${terminator} 42 0 0 ${phase<.5?0:1} 50 8`;
   $('#centralMoonPhase').setAttribute('d',`M50 8 A42 42 0 0 1 50 92 ${edge} Z`);
   const moon=$('#centralMoon');
-  moon.style.setProperty('--moon-glow',String(.22+.28*completion));
+  moon.style.setProperty('--moon-glow',String(.12+.1*completion));
   moon.classList.toggle('is-full-moon',completion===1);
   moon.dataset.progress=String(completion);
   const phaseLabel=completion===1?'보름달':Math.abs(completion-.5)<.02?'반달':completion<.2?'초승달':'차오르는 달';
