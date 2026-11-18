@@ -1357,11 +1357,22 @@ body.ready:not(.is-intro) .finale-moon{visibility:visible}
 }
 @media(prefers-reduced-motion:reduce){.header-nav .nav-link{transition:none}}
 </style>
+<style>
+/* 계절의 별자리는 배경 위에 작고 차분하게 표시합니다. */
+.constellation-caption{position:fixed;z-index:0;pointer-events:none;max-width:280px;opacity:.75;color:#d6c9ad;text-shadow:0 1px 7px #061020}
+.constellation-caption>span{display:block;margin-bottom:7px;font:7px Georgia,serif;letter-spacing:.2em;color:#b3becf}
+.constellation-caption>strong{display:block;font-size:10px;font-weight:400;letter-spacing:.04em;line-height:1.7;word-break:keep-all}
+body.is-intro .constellation-caption{visibility:hidden}
+@media(max-width:700px){.constellation-caption{max-width:180px;opacity:.6}.constellation-caption>span{font-size:6px;margin-bottom:5px}.constellation-caption>strong{font-size:8px}}
+</style>
 </head>
 
 <body class="is-intro">
 <div id="pageBackdrop" aria-hidden="true"><div class="sky-panorama"><span></span><span></span><span></span><span></span></div><canvas id="ambient" aria-hidden="true"></canvas></div>
 <canvas id="musicScene" aria-hidden="true"></canvas>
+<div class="constellation-caption" id="constellationCaption" role="img" aria-label="계절의 대표 별자리">
+  <span id="constellationSeason"></span><strong id="constellationName"></strong>
+</div>
 <div class="sky-leaves" aria-hidden="true"><svg class="sky-leaf" viewBox="0 0 64 74" fill="none"><path d="M40 2Q24 20 30 37L8 39L5 49L15 53L19 64L30 61L39 66L44 57L54 54L50 43L34 36Q28 20 42 3" fill="#bd9357"/><path d="M30 38L19 55M32 38L30 59M34 38L41 56" stroke="#ebc585" stroke-width="1"/></svg><svg class="sky-leaf" viewBox="0 0 64 74" fill="none"><path d="M40 2Q24 20 30 37L8 39L5 49L15 53L19 64L30 61L39 66L44 57L54 54L50 43L34 36Q28 20 42 3" fill="#bd9357"/><path d="M30 38L19 55M32 38L30 59M34 38L41 56" stroke="#ebc585" stroke-width="1"/></svg><svg class="sky-leaf" viewBox="0 0 64 74" fill="none"><path d="M40 2Q24 20 30 37L8 39L5 49L15 53L19 64L30 61L39 66L44 57L54 54L50 43L34 36Q28 20 42 3" fill="#bd9357"/><path d="M30 38L19 55M32 38L30 59M34 38L41 56" stroke="#ebc585" stroke-width="1"/></svg><svg class="sky-leaf" viewBox="0 0 64 74" fill="none"><path d="M40 2Q24 20 30 37L8 39L5 49L15 53L19 64L30 61L39 66L44 57L54 54L50 43L34 36Q28 20 42 3" fill="#bd9357"/><path d="M30 38L19 55M32 38L30 59M34 38L41 56" stroke="#ebc585" stroke-width="1"/></svg></div>
 
 <header class="portfolio-header">
@@ -3064,16 +3075,44 @@ $('#visualButton').addEventListener('click',()=>{
   wake();
 });
 
-// 배경 이미지의 별 위치를 유지하고, 작은 별들을 더합니다.
-const skyStars=[[79.4,694.3],[1251.9,304.7],[1149.2,675.5],[1307.9,218.4],[93.3,428.1],[811.6,190.1],[1477.3,253.6],[1053.7,932.3],[1346.1,786.8],[1294,178],[212.6,244.5],[108,575.8],[1290.8,56.7],[956,161],[322,921.8],[671.4,795],[1060.8,376],[1435,480.5]];
-const starField=Array.from({length:72},(_,i)=>({
-  x:((i*.61803398875+.13)%1),
-  y:.04+((i*.41421356237+.21)%1)*.84,
-  size:.8+(i%5)*.22,
-  phase:i*2.39996,
-  band:i%3,
-  accent:i%5===0
-}));
+// 한국(북반구 중위도)의 계절별 대표 별자리를 모양 중심으로 표현합니다.
+// 실제 관측 시각·방위·별의 정확한 천구 좌표를 나타내는 지도는 아닙니다.
+// 각 별: [이름, 도식 x, 도식 y, 크기, 반응 대역(저음/중음/고음), 주요 별 여부]
+const seasonalConstellations={
+  spring:{name:'사자자리',english:'LEO',season:'SPRING',korean:'봄',
+    stars:[['레굴루스',.2,.76,2.1,0,true],['알기에바',.31,.43,1.8,1,true],['아드하페라',.2,.27,1.3,2,false],['라살라스',.08,.2,1.2,2,false],['엡실론',0,.34,1.2,1,false],['에타',.13,.48,1.3,1,false],['조스마',.68,.33,1.5,1,false],['체르탄',.64,.65,1.4,2,false],['데네볼라',.93,.54,1.9,0,true]],
+    lines:[[0,5],[5,1],[1,2],[2,3],[3,4],[1,6],[6,8],[8,7],[7,0]]},
+  summer:{name:'백조자리 · 북십자성',english:'CYGNUS',season:'SUMMER',korean:'여름',
+    stars:[['데네브',.54,.06,2.2,0,true],['사드르',.5,.4,1.9,1,true],['알비레오',.37,.96,1.6,0,true],['기에나',.92,.61,1.5,2,false],['델타',.08,.23,1.5,2,false],['제타',.68,.5,1.2,1,false],['에타',.45,.66,1.2,1,false]],
+    lines:[[0,1],[1,6],[6,2],[4,1],[1,5],[5,3]]},
+  autumn:{name:'페가수스자리 · 가을철 대사각형',english:'PEGASUS',season:'AUTUMN',korean:'가을',
+    // 대사각형의 알페라츠는 안드로메다자리에 속합니다.
+    stars:[['마르카브',.42,.62,1.9,0,true],['쉐아트',.42,.06,1.9,1,true],['알게니브',.96,.62,1.7,2,true],['알페라츠 (안드로메다자리)',.96,.06,2,0,true],['마타르',.25,.13,1.3,2,false],['사달바리',.08,.24,1.2,1,false],['호맘',.25,.68,1.3,1,false],['바함',.12,.81,1.2,2,false],['에니프',.02,.94,1.7,0,true]],
+    lines:[[0,1],[1,3],[3,2],[2,0],[1,4],[4,5],[0,6],[6,7],[7,8]]},
+  winter:{name:'오리온자리',english:'ORION',season:'WINTER',korean:'겨울',
+    stars:[['베텔게우스',.72,.12,2.2,0,true],['벨라트릭스',.23,.18,1.8,1,true],['알니타크',.61,.5,1.8,2,true],['알닐람',.5,.53,1.9,1,true],['민타카',.4,.56,1.7,2,true],['사이프',.75,.9,1.7,1,false],['리겔',.2,.96,2.3,0,true],['메이사',.48,.04,1.2,2,false]],
+    lines:[[7,0],[7,1],[0,2],[1,4],[4,3],[3,2],[2,5],[4,6],[5,6]]}
+};
+let constellationScene=null;
+let constellationSceneKey='';
+function getConstellationScene(){
+  const key=seasonKey+'|'+W+'|'+H;
+  if(key===constellationSceneKey)return constellationScene;
+  const definition=seasonalConstellations[seasonKey]||seasonalConstellations.autumn;
+  const mobile=W<=700;
+  const unit=mobile?Math.min(190,W*.46,H*.25):Math.min(430,W*.32,H*.43);
+  const cx=mobile?W*.73:W*.78;
+  const cy=mobile?H*.61:H*.38;
+  constellationScene={definition,unit,mobile,stars:definition.stars.map(([name,x,y,size,band,accent],i)=>({name,x:cx+(x-.5)*unit,y:cy+(y-.5)*unit,size:mobile?size*.82:size,band,accent,bin:Math.floor((i*.381966%1)*18)+2}))};
+  constellationSceneKey=key;
+  const caption=$('#constellationCaption');
+  caption.style.left=`${cx-unit*.5}px`;
+  caption.style.top=`${mobile?cy-unit*.5-30:cy+unit*.5+12}px`;
+  caption.setAttribute('aria-label',definition.korean+'의 대표 별자리, '+definition.name+'. 모양을 중심으로 표현한 별자리이며 실제 관측 위치와는 다릅니다.');
+  $('#constellationSeason').textContent=definition.season+' SKY · '+definition.english;
+  $('#constellationName').textContent=definition.name;
+  return constellationScene;
+}
 const starlight={time:0,bands:[0,0,0],baseline:0,flash:0,lastBeat:-Infinity};
 function drawSpectrum(now){
   ac.clearRect(0,0,W,H);
@@ -3112,42 +3151,37 @@ function drawSpectrum(now){
   state.bands.forEach((value,i)=>{
     state.bands[i]=lerp(value,targets[i],1-Math.exp(-dt/(targets[i]>value?.055:.28)));
   });
-  const backdrop=$('#pageBackdrop');
-  const bw=Math.max(1,backdrop.clientWidth),bh=Math.max(1,backdrop.clientHeight);
-  const scale=Math.max(bw/1536,bh/1024);
-  const stars=skyStars.map(([x,y],i)=>({
-    x:(x*scale+(bw-1536*scale)/2)/bw*W,
-    y:(y*scale+(bh-1024*scale)/2)/bh*H,
-    size:1.45,phase:i*2.39996,band:i%3,accent:true
-  }));
-  const count=W<700?40:starField.length;
-  for(let i=0;i<count;i++)stars.push({...starField[i],x:starField[i].x*W,y:starField[i].y*H});
+  const scene=getConstellationScene();
+  const stars=scene.stars;
   ac.save();
   ac.globalCompositeOperation='screen';
+  // 연결선은 약하게, 별은 선보다 또렷하게 보여줍니다.
+  if(visual){
+    ac.globalAlpha=(scene.mobile?.1:.17)+Math.min(.1,state.bands[1]*.16+state.flash*.08);
+    ac.strokeStyle='#a8bed8';ac.lineWidth=.7;ac.shadowBlur=0;
+    ac.beginPath();
+    scene.definition.lines.forEach(([a,b])=>{ac.moveTo(stars[a].x,stars[a].y);ac.lineTo(stars[b].x,stars[b].y);});
+    ac.stroke();
+  }
   stars.forEach(star=>{
-    if(star.x<0||star.x>W||star.y<0||star.y>H)return;
-    const wave=.5+.5*Math.sin(audio.currentTime*(.8+star.band*.22)+star.phase);
     const energy=Math.min(1,Math.pow(state.bands[star.band]*2.4,.8));
-    // 소리가 없거나 재생이 멈추면 작은 정적인 별만 남깁니다.
-    const pulse=reactive?Math.min(1,energy*(.08+.92*Math.pow(wave,3))+state.flash*(.2+.8*wave)):0;
-    const radius=star.size*(1+pulse*1.6);
-    ac.globalAlpha=Math.min(.95,(star.accent?.45:.28)+pulse*.85);
-    ac.fillStyle=star.band===2?'#e2edff':'#fff0cb';
-    ac.shadowColor=star.band===2?'#b5d3ff':'#ffd895';
-    ac.shadowBlur=3+pulse*24;
+    const detail=reactive?frequency[Math.min(frequency.length-1,star.bin)]/255:0;
+    // 위치는 고정하고 실제 주파수·저음 타격에 따라 밝기만 변화시킵니다.
+    const pulse=reactive?Math.min(1,energy*(.5+.5*detail)+state.flash*(star.accent?.8:.35)):0;
+    const radius=star.size*(1+pulse*.8);
+    ac.globalAlpha=Math.min(.95,(scene.mobile?.48:.64)+pulse*.3);
+    ac.fillStyle=star.band===2?'#dfedff':'#fff0cc';
+    ac.shadowColor=star.band===2?'#bad4ff':'#ffe1a2';
+    ac.shadowBlur=4+pulse*17;
     ac.beginPath();ac.arc(star.x,star.y,radius,0,Math.PI*2);ac.fill();
-    if(star.accent||pulse>.3){
-      const arm=(star.accent?4:2)+pulse*(star.accent?19:10);
-      ac.globalAlpha=(star.accent?.25:.08)+pulse*.75;
+    if(star.accent){
+      const arm=3.6+pulse*9;
+      ac.globalAlpha=(scene.mobile?.18:.25)+pulse*.48;
       ac.beginPath();
-      ac.moveTo(star.x,star.y-arm);
-      ac.lineTo(star.x+.7,star.y-.7);
-      ac.lineTo(star.x+arm,star.y);
-      ac.lineTo(star.x+.7,star.y+.7);
-      ac.lineTo(star.x,star.y+arm);
-      ac.lineTo(star.x-.7,star.y+.7);
-      ac.lineTo(star.x-arm,star.y);
-      ac.lineTo(star.x-.7,star.y-.7);
+      ac.moveTo(star.x,star.y-arm);ac.lineTo(star.x+.65,star.y-.65);
+      ac.lineTo(star.x+arm,star.y);ac.lineTo(star.x+.65,star.y+.65);
+      ac.lineTo(star.x,star.y+arm);ac.lineTo(star.x-.65,star.y+.65);
+      ac.lineTo(star.x-arm,star.y);ac.lineTo(star.x-.65,star.y-.65);
       ac.closePath();ac.fill();
     }
   });
@@ -3280,6 +3314,7 @@ document.addEventListener('visibilitychange',()=>{
     }
 
     pausedAt=0;
+    if(!introRunning){seasonKey=autoSeason();syncMascot();}
     wake();
   }
 });
