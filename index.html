@@ -1164,7 +1164,6 @@ body.visual-paused .sky-panorama{animation-play-state:paused}
 
 #pageBackdrop::after{background:radial-gradient(ellipse at var(--scroll-glow-x,60%) 70%,#d5ad7030,transparent 56%),linear-gradient(180deg,#08102110,transparent 55%,#08102020);opacity:calc(.45 + var(--scroll-glow,0)*.55);transition:opacity .7s}
 .sky-leaves{translate:none}
-header::after{content:"";position:absolute;left:0;right:0;bottom:9px;height:1px;background:linear-gradient(90deg,transparent,#e7c58e,#fff0c6);transform:scaleX(var(--page-progress,0));transform-origin:left;box-shadow:0 0 7px #e7c58e50;pointer-events:none}
 body.visual-paused #pageBackdrop{translate:none}
 body.visual-paused #pageBackdrop::after{opacity:.45}
 @media(prefers-reduced-motion:reduce){#pageBackdrop,.sky-leaves{translate:none!important;transition:none!important}#shootingCursor .cursor-ripple{animation:none!important}#pageBackdrop::after{opacity:.45;transition:none}}
@@ -1368,13 +1367,13 @@ body.visual-paused .project-peek.peek-cue{transform:rotate(6deg)!important}
 </style>
 <style>
 /* 페이지 중앙에 고정된 달: 글과 폴더 아래에서 읽기 진행을 보여줍니다. */
-.central-moon{position:fixed;left:50%;top:50%;width:clamp(340px,34vw,460px);aspect-ratio:1;transform:translate(-50%,-50%);z-index:0;pointer-events:none;visibility:hidden;--moon-glow:.1}
+.central-moon{position:fixed;left:50%;top:50%;width:clamp(360px,38vw,540px);aspect-ratio:1;transform:translate(-50%,-50%);z-index:0;pointer-events:none;visibility:hidden;--moon-glow:.1}
 body.ready:not(.is-intro) .central-moon{visibility:visible}
 .central-moon::before{content:"";position:absolute;inset:-24%;border-radius:50%;background:radial-gradient(circle,#d8c59350,transparent 66%);opacity:var(--moon-glow);pointer-events:none}
 .central-moon svg{position:relative;display:block;width:100%;height:100%}
-.central-moon-dark{fill:#c4bda4;fill-opacity:.065}
-.central-moon-lit{opacity:.34}
-.central-moon-outline{fill:none;stroke:#d8cba8;stroke-opacity:.13;stroke-width:.25}
+.central-moon-dark{fill:#c4bda4;fill-opacity:.12}
+.central-moon-lit{opacity:.66}
+.central-moon-outline{fill:none;stroke:#d8cba8;stroke-opacity:.28;stroke-width:.25}
 body.visual-paused .central-moon::before{opacity:.06}
 .track{opacity:.55}
 .track-head{opacity:.75}
@@ -1382,9 +1381,9 @@ body.visual-paused .central-moon::before{opacity:.06}
 .archive-ending p{margin:0 0 10px;color:#e0d2b9;font-size:12px;line-height:1.9}
 .archive-ending>span{color:#a89b83;font:8px Georgia,serif;letter-spacing:.2em;line-height:1.8}
 @media(max-width:700px){
- .central-moon{width:clamp(220px,58vw,270px)}
- .central-moon-lit{opacity:.28}
- .central-moon-dark{fill-opacity:.055}
+ .central-moon{width:clamp(240px,64vw,290px)}
+ .central-moon-lit{opacity:.5}
+ .central-moon-dark{fill-opacity:.1}
  .archive-ending{padding:30px 15px 34px}
  .archive-ending p{font-size:11px}
  .archive-ending>span{font-size:7px}
@@ -1403,7 +1402,7 @@ body.visual-paused .central-moon::before{opacity:.06}
         <stop offset="0" stop-color="#fff2d6"/><stop offset=".6" stop-color="#d9d0ba"/><stop offset="1" stop-color="#938979"/>
       </radialGradient>
       <mask id="centralMoonMask" maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="100">
-        <path id="centralMoonPhase" fill="white" d="M50 8 A42 42 0 0 1 50 92 A39.06 42 0 0 0 50 8 Z"/>
+        <path id="centralMoonPhase" fill="white" d="M50 8 A42 42 0 0 1 50 92 A33.6 42 0 0 0 50 8 Z"/>
       </mask>
       <clipPath id="centralMoonDisc"><circle cx="50" cy="50" r="42"/></clipPath>
       <filter id="centralMoonGrain" x="0" y="0" width="100%" height="100%">
@@ -3460,11 +3459,10 @@ function scheduleDepth(){
   const range=Math.max(1,document.documentElement.scrollHeight-innerHeight);
   const progress=clamp(scrollY/range);
   const root=document.documentElement;
-  root.style.setProperty('--page-progress',progress);
   // 빛과 그림자의 경계를 타원으로 그려 50%에서 반달, 100%에서 보름달이 됩니다.
   const remaining=Math.max(0,range-scrollY);
   const completion=remaining<=2?1:progress;
-  const phase=Math.max(.035,completion);
+  const phase=Math.max(.1,completion);
   const radius=42;
   const terminator=Math.abs(1-2*phase)*radius;
   const edge=terminator<.001?'L50 8':`A${terminator} 42 0 0 ${phase<.5?0:1} 50 8`;
