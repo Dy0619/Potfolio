@@ -3070,6 +3070,57 @@ function getConstellationScene(){
   constellationSceneKey=key;
   return constellationScene;
 }
+// 달 주변의 별은 화면 크기가 바뀔 때만 배치하며, 재생 중 위치를 바꾸지 않습니다.
+let moonStarScene=null;
+function getMoonStarScene(){
+ const key=W+'|'+H;
+ if(moonStarScene?.key===key)return moonStarScene;
+ const mobile=W<=700;
+ const diameter=mobile?clamp(W*.64,240,290):clamp(W*.38,360,540);
+ const moonRadius=diameter*.42;
+ const count=mobile?22:42;
+ const stars=Array.from({length:count},(_,i)=>{
+  const angle=i*2.3999632297+.31;
+  const scatter=(Math.sin(i*17.13+2.4)+1)*.5;
+  const ring=1.14+scatter*.65;
+  const rx=Math.min(moonRadius*ring,W*.46);
+  const ry=Math.min(moonRadius*(ring+.07),H*.42);
+  return {x:W*.5+Math.cos(angle)*rx,y:H*.5+Math.sin(angle)*ry,
+   size:(mobile?.65:.8)+(i%5)*.14,band:i%3,accent:i%8===0,
+   variation:.55+(i%7)/14,frequency:((i*.618034)%1)};
+ });
+ moonStarScene={key,mobile,stars};
+ return moonStarScene;
+}
+function drawMoonStars(state,reactive){
+ if(!ready||introRunning)return;
+ const scene=getMoonStarScene();
+ ac.save();ac.globalCompositeOperation='screen';
+ scene.stars.forEach(star=>{
+  const energy=Math.pow(clamp(state.bands[star.band]*3.5),.75);
+  let detail=0;
+  if(reactive){
+   const range=star.band===0?[55,220]:star.band===1?[220,2000]:[2000,9000];
+   const hz=lerp(range[0],range[1],star.frequency);
+   const bin=Math.min(frequency.length-1,Math.round(hz*analyser.fftSize/audioContext.sampleRate));
+   detail=frequency[bin]/255;
+  }
+  const pulse=reactive?clamp(energy*(.55+detail*.45)*star.variation+state.flash*(star.accent?.8:.4)):0;
+  const radius=star.size*(1+pulse*.85);
+  ac.globalAlpha=.23+pulse*.72;
+  ac.fillStyle=star.band===2?'#deebff':'#ffe1a2';
+  ac.shadowColor=star.band===2?'#bfd7ff':'#edc27f';
+  ac.shadowBlur=3+pulse*17;
+  ac.beginPath();ac.arc(star.x,star.y,radius,0,Math.PI*2);ac.fill();
+  if(star.accent&&pulse>.12){
+   const arm=2+pulse*6;
+   ac.globalAlpha=pulse*.55;ac.lineWidth=.7;ac.strokeStyle='#ffeac0';
+   ac.beginPath();ac.moveTo(star.x-arm,star.y);ac.lineTo(star.x+arm,star.y);
+   ac.moveTo(star.x,star.y-arm);ac.lineTo(star.x,star.y+arm);ac.stroke();
+  }
+ });
+ ac.restore();
+}
 const starlight={time:0,bands:[0,0,0],baseline:0,flash:0,lastBeat:-Infinity};
 function drawSpectrum(now){
   ac.clearRect(0,0,W,H);
@@ -3122,6 +3173,7 @@ function drawSpectrum(now){
     veil.addColorStop(1,'rgba(4,11,25,0)');
     ac.fillStyle=veil;ac.fillRect(cx-radius,cy-radius,radius*2,radius*2);
   }
+  drawMoonStars(state,reactive);
   ac.globalCompositeOperation='screen';
   // 음악이 없어도 형태를 읽을 수 있는 연결선과 별의 기본 밝기입니다.
   if(visual){
