@@ -1307,6 +1307,18 @@ body.visual-paused .finale-moon::before{opacity:.08}
 @media(max-width:700px){.moon-finale{padding-top:32px;padding-bottom:34px}.finale-moon{width:88px;height:88px}.finale-moon-caption{font-size:11px}.finale-moon-signature{font-size:7px}}
 @media(prefers-reduced-motion:reduce){.finale-moon::before{opacity:.12}}
 </style>
+<style>
+/* 같은 달을 화면 하단에 보여주고, 마지막에는 중앙의 자리로 이어줍니다. */
+.finale-moon-slot{width:100px;height:100px;flex-shrink:0}
+.finale-moon{
+  position:fixed;left:50%;top:calc(100vh - 52px);top:calc(100dvh - 52px);
+  width:var(--scroll-moon-size,64px);height:var(--scroll-moon-size,64px);
+  transform:translate(-50%,-50%);z-index:12;pointer-events:none;
+  visibility:hidden;--moon-safe-bottom:env(safe-area-inset-bottom,0px);
+}
+body.ready:not(.is-intro) .finale-moon{visibility:visible}
+@media(max-width:700px){.finale-moon-slot{width:88px;height:88px}.finale-moon{width:var(--scroll-moon-size,56px);height:var(--scroll-moon-size,56px)}}
+</style>
 </head>
 
 <body class="is-intro">
@@ -1366,6 +1378,7 @@ body.visual-paused .finale-moon::before{opacity:.08}
   </div>
 
   <section class="moon-finale" id="moonFinale" aria-label="스크롤을 따라 차오르는 달">
+    <div class="finale-moon-slot" id="finaleMoonSlot">
     <div class="finale-moon" role="img" aria-label="초승달" id="finaleMoonImage">
       <svg viewBox="0 0 100 100" aria-hidden="true" focusable="false">
         <defs>
@@ -1391,6 +1404,7 @@ body.visual-paused .finale-moon::before{opacity:.08}
           </g>
         </g>
       </svg>
+    </div>
     </div>
     <p class="finale-moon-caption">끝까지 함께해 주셔서 감사합니다.</p>
     <span class="finale-moon-signature" aria-hidden="true">D.LUNE · END OF ARCHIVE</span>
@@ -3300,14 +3314,28 @@ function scheduleDepth(){
   const progress=clamp(scrollY/range);
   const root=document.documentElement;
   root.style.setProperty('--page-progress',progress);
-  // 마지막 화면에서 차오르며, 페이지 끝에서는 그림자가 완전히 사라집니다.
+  // 전체 읽기 진행에 맞춰 차오르며, 맨 아래에서는 같은 달이 제자리에 놓입니다.
   const remaining=Math.max(0,range-scrollY);
-  const completion=remaining<=2?1:clamp(1-remaining/Math.max(180,innerHeight*.75));
+  const completion=remaining<=2?1:progress;
   const phase=.08+.92*completion;
   $('#finaleMoonShadow').setAttribute('cx',String(50+68*phase));
   $('#moonFinale').style.setProperty('--moon-light',String(.12+.68*completion));
   $('#moonFinale').classList.toggle('is-full-moon',completion===1);
-  $('#finaleMoonImage').setAttribute('aria-label',completion===1?'보름달':completion<.2?'초승달':'차오르는 달');
+  const moon=$('#finaleMoonImage');
+  const slot=$('#finaleMoonSlot').getBoundingClientRect();
+  const mobile=innerWidth<=700;
+  const smallSize=mobile?56:64;
+  const finalSize=mobile?88:100;
+  const safeBottom=parseFloat(getComputedStyle(moon).getPropertyValue('--moon-safe-bottom'))||0;
+  const dockY=innerHeight-safeBottom-18-smallSize/2;
+  const finalY=slot.top+slot.height/2;
+  const approach=clamp((dockY-finalY)/140);
+  moon.style.top=`${Math.min(dockY,finalY)}px`;
+  moon.style.setProperty('--scroll-moon-size',`${lerp(smallSize,finalSize,approach)}px`);
+  moon.dataset.docked=String(approach===1);
+  const phaseLabel=completion===1?'보름달':completion<.2?'초승달':'차오르는 달';
+  const label=phaseLabel+' · 읽기 진행 '+Math.round(completion*100)+'%';
+  if(moon.getAttribute('aria-label')!==label)moon.setAttribute('aria-label',label);
   root.style.setProperty('--scroll-glow-x',`${35+progress*35}%`);
   const movement=Math.min(1,Math.abs(scrollY-depthLastY)/90);
   root.style.setProperty('--scroll-glow',reduced()?0:movement);
