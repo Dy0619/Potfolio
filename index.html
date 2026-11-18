@@ -1357,22 +1357,11 @@ body.ready:not(.is-intro) .finale-moon{visibility:visible}
 }
 @media(prefers-reduced-motion:reduce){.header-nav .nav-link{transition:none}}
 </style>
-<style>
-/* 계절의 별자리는 배경 위에 작고 차분하게 표시합니다. */
-.constellation-caption{position:fixed;z-index:0;pointer-events:none;max-width:300px;opacity:1;color:#f2dfba;text-shadow:0 1px 4px #020713,0 0 10px #020713}
-.constellation-caption>span{display:block;margin-bottom:7px;font:8px Georgia,serif;letter-spacing:.2em;color:#d3ddec}
-.constellation-caption>strong{display:block;font-size:12px;font-weight:400;letter-spacing:.04em;line-height:1.7;word-break:keep-all}
-body.is-intro .constellation-caption{visibility:hidden}
-@media(max-width:700px){.constellation-caption{max-width:180px;opacity:1}.constellation-caption>span{font-size:7px;margin-bottom:5px}.constellation-caption>strong{font-size:10px}}
-</style>
 </head>
 
 <body class="is-intro">
 <div id="pageBackdrop" aria-hidden="true"><div class="sky-panorama"><span></span><span></span><span></span><span></span></div><canvas id="ambient" aria-hidden="true"></canvas></div>
 <canvas id="musicScene" aria-hidden="true"></canvas>
-<div class="constellation-caption" id="constellationCaption" role="img" aria-label="계절의 대표 별자리">
-  <span id="constellationSeason"></span><strong id="constellationName"></strong>
-</div>
 <div class="sky-leaves" aria-hidden="true"><svg class="sky-leaf" viewBox="0 0 64 74" fill="none"><path d="M40 2Q24 20 30 37L8 39L5 49L15 53L19 64L30 61L39 66L44 57L54 54L50 43L34 36Q28 20 42 3" fill="#bd9357"/><path d="M30 38L19 55M32 38L30 59M34 38L41 56" stroke="#ebc585" stroke-width="1"/></svg><svg class="sky-leaf" viewBox="0 0 64 74" fill="none"><path d="M40 2Q24 20 30 37L8 39L5 49L15 53L19 64L30 61L39 66L44 57L54 54L50 43L34 36Q28 20 42 3" fill="#bd9357"/><path d="M30 38L19 55M32 38L30 59M34 38L41 56" stroke="#ebc585" stroke-width="1"/></svg><svg class="sky-leaf" viewBox="0 0 64 74" fill="none"><path d="M40 2Q24 20 30 37L8 39L5 49L15 53L19 64L30 61L39 66L44 57L54 54L50 43L34 36Q28 20 42 3" fill="#bd9357"/><path d="M30 38L19 55M32 38L30 59M34 38L41 56" stroke="#ebc585" stroke-width="1"/></svg><svg class="sky-leaf" viewBox="0 0 64 74" fill="none"><path d="M40 2Q24 20 30 37L8 39L5 49L15 53L19 64L30 61L39 66L44 57L54 54L50 43L34 36Q28 20 42 3" fill="#bd9357"/><path d="M30 38L19 55M32 38L30 59M34 38L41 56" stroke="#ebc585" stroke-width="1"/></svg></div>
 
 <header class="portfolio-header">
@@ -3105,12 +3094,6 @@ function getConstellationScene(){
   const cy=mobile?H*.61:H*.38;
   constellationScene={definition,unit,mobile,stars:definition.stars.map(([name,x,y,size,band,accent],i)=>({name,x:cx+(x-.5)*unit,y:cy+(y-.5)*unit,size:mobile?size*.82:size,band,accent,bin:Math.floor((i*.381966%1)*18)+2}))};
   constellationSceneKey=key;
-  const caption=$('#constellationCaption');
-  caption.style.left=`${cx-unit*.5}px`;
-  caption.style.top=`${mobile?cy-unit*.5-30:cy+unit*.5+12}px`;
-  caption.setAttribute('aria-label',definition.korean+'의 대표 별자리, '+definition.name+'. 모양을 중심으로 표현한 별자리이며 실제 관측 위치와는 다릅니다.');
-  $('#constellationSeason').textContent=definition.season+' SKY · '+definition.english;
-  $('#constellationName').textContent=definition.name;
   return constellationScene;
 }
 const starlight={time:0,bands:[0,0,0],baseline:0,flash:0,lastBeat:-Infinity};
