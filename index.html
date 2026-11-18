@@ -1385,6 +1385,39 @@ body.ready:not(.is-intro) .central-moon{visibility:visible}
  .archive-ending>span{font-size:7px}
 }
 </style>
+<style>
+/* 본문과 같은 밤하늘 위, 금빛을 중심으로 계절의 결만 더합니다. */
+#opening{--intro-title-opacity:0;--intro-reveal:0;--intro-font:60px;--intro-title-half:86px;transform-origin:15% 50%}
+#opening::before{background-image:linear-gradient(#06101dd9,#081326a8),var(--intro-sky);background-size:cover;background-position:center;filter:blur(calc(3px * (1 - var(--intro-reveal)))) brightness(calc(.62 + var(--intro-reveal) * .25));transform:scale(1.03);opacity:calc(1 - var(--intro-reveal) * .35);transition:none}
+#opening::after{border-color:#ead1ac18;box-shadow:inset -10px 0 28px #0002}
+#opening.is-turning{border-radius:3px;box-shadow:12px 0 35px #0003}
+#opening .opening-top{top:28px;left:5.2%;right:5.2%;align-items:center}
+#opening .opening-brand{font:38px Georgia,serif;letter-spacing:-.035em;color:#f6ead8}
+.opening-brand>span{font-size:17px;color:var(--gold);vertical-align:top;margin-left:5px;letter-spacing:0}
+#opening .opening-top small{font-size:7px;letter-spacing:.12em;margin-top:7px;color:#b9b6b0}
+#opening .opening-actions{gap:14px}
+#opening .opening-actions button{min-height:42px;white-space:nowrap;font-size:11px;padding:10px 16px}
+#opening #openingMusic{border-color:transparent;color:#c3bcad;font-size:10px}
+#opening #skipIntro{border-color:#d9ba8055;color:#e4cfaa;background:#0a182e60}
+#opening .opening-actions button:focus-visible{outline:1px solid #ead1ac;outline-offset:3px}
+#introTitle{position:absolute;z-index:2;left:6%;right:6%;top:43%;transform:translateY(-50%);margin:0;text-align:center;color:#f4ead8;font:500 var(--intro-font)/1.44 Arial,"Malgun Gothic",sans-serif;letter-spacing:0;opacity:var(--intro-title-opacity);text-shadow:0 2px 20px #030a16a0;pointer-events:none}
+#introTitle>span{display:block}
+#opening #introCaption{left:6%;right:6%;top:calc(43% + var(--intro-title-half) + 22px);bottom:auto;margin:0;color:#cebea2;font-size:13px;line-height:1.8;letter-spacing:.12em;pointer-events:none}
+.intro-season{position:absolute;z-index:2;bottom:max(32px,env(safe-area-inset-bottom));left:5.2%;font:9px Georgia,serif;letter-spacing:.16em;color:#b7a88d;opacity:calc(.75 * (1 - var(--intro-reveal)))}
+.intro-season::before{content:"✦";margin-right:10px;color:var(--gold)}
+@media(max-width:700px){
+ #opening .opening-top{top:max(22px,env(safe-area-inset-top));display:grid;grid-template-columns:1fr auto;gap:8px 12px;align-items:start}
+ #opening .opening-top>div:first-child{grid-column:1;grid-row:1 / span 2;padding-top:3px}
+ #opening .opening-brand{font-size:32px}
+ #opening .opening-top small{font-size:6px;letter-spacing:.08em;max-width:none;margin-top:7px}
+ #opening .opening-actions{display:contents}
+ #opening #skipIntro{grid-column:2;grid-row:1;min-height:44px;padding:10px 13px;font-size:10px}
+ #opening #openingMusic{grid-column:2;grid-row:2;padding:3px 5px;min-height:32px;font-size:9px;justify-self:end}
+ #opening #introCaption{top:calc(43% + var(--intro-title-half) + 18px);font-size:11px;letter-spacing:.08em}
+ .intro-season{font-size:8px;bottom:max(26px,env(safe-area-inset-bottom))}
+}
+@media(prefers-reduced-motion:reduce){#opening::before{filter:none;transform:none}#introTitle{opacity:1}}
+</style>
 </head>
 
 <body class="is-intro">
@@ -1488,20 +1521,22 @@ body.ready:not(.is-intro) .central-moon{visibility:visible}
 
 <div id="opening" role="region" aria-label="계절 인트로">
   <canvas id="introCanvas" aria-hidden="true"></canvas>
-  <span class="sr-only">방문해 주셔서 감사합니다.</span>
+
 
   <div class="opening-top">
     <div>
-      <strong>DOYEOP ARCHIVE</strong>
-      <small id="seasonLabel"></small>
+      <strong class="opening-brand">D.Lune<span aria-hidden="true">✦</span></strong>
+      <small>강도엽 · DESIGN & WEB</small>
     </div>
     <div class="opening-actions">
-      <button id="openingMusic" aria-pressed="false">음악 켜기 ♪</button>
+      <button id="openingMusic" aria-pressed="false">음악과 함께 보기 ♪</button>
       <button id="skipIntro">건너뛰기 ↗</button>
     </div>
   </div>
 
-  <p id="introCaption">강도엽의 포트폴리오입니다.</p>
+  <h1 id="introTitle"><span>작은 차이를 발견하고,</span><span>하나의 화면으로 만듭니다.</span></h1>
+  <p id="introCaption">강도엽 · 디자인 & 웹</p>
+  <small id="seasonLabel" class="intro-season"></small>
 </div>
 
 <dialog id="detail" aria-labelledby="detailTitle">
@@ -2293,7 +2328,7 @@ let analyser=null;
 let audioSource=null;
 let frequency=null;
 const music={
-  wanted:true,
+  wanted:false,
   pending:false,
   blocked:false,
   failed:false,
@@ -2331,7 +2366,7 @@ function updateMusic(){
   $('#openingMusic').setAttribute('aria-pressed',String(playing));
   $('#openingMusic').textContent=music.failed
     ?'음악 다시 시도 ♪'
-    :label+' ♪';
+    :playing?'음악 끄기 ♪':buffering?'음악 준비 중…':'음악과 함께 보기 ♪';
 }
 
 function connectAudioGraph(){
@@ -2521,7 +2556,7 @@ audio.addEventListener('pause',()=>{
 audio.addEventListener('waiting',()=>{updateMusic();wake();});
 audio.addEventListener('canplay',updateMusic);
 audio.addEventListener('error',()=>{
-  if(!audio.error)return;
+  if(!audio.error||!music.wanted)return;
   music.failed=true;
   music.blocked=false;
   updateMusic();
@@ -2534,10 +2569,10 @@ addEventListener('pageshow',()=>{
 
 /* 계절 인트로 */
 const seasons={
-  spring:{name:'봄',colors:['#f0b4c8','#ecc8d0','#f6d6df']},
-  summer:{name:'여름',colors:['#89ba79','#b3d794','#69a589']},
-  autumn:{name:'가을',colors:['#edb76d','#d98c51','#da785c']},
-  winter:{name:'겨울',colors:['#f1f5ef','#d0e3ed','#c5d5dc']}
+  spring:{name:'봄',mood:'꽃잎이 머무는 밤',colors:['#dbadb6','#edc6ca','#d6b794']},
+  summer:{name:'여름',mood:'반딧불이 흐르는 밤',colors:['#cbdca5','#a9c5b2','#e3d6a6']},
+  autumn:{name:'가을',mood:'낙엽이 스치는 밤',colors:['#d6ac70','#c58c59','#dfbc8d']},
+  winter:{name:'겨울',mood:'눈빛이 내려앉는 밤',colors:['#e6e9e5','#bfd0da','#d7dfdc']}
 };
 
 function autoSeason(){
@@ -2562,7 +2597,7 @@ let W=0;
 let H=0;
 let DPR=1;
 
-const INTRO={release:4.2,turn:6.15};
+const INTRO={release:3.05,turn:3.9};
 
 const introCanvas=$('#introCanvas');
 const ic=introCanvas.getContext('2d');
@@ -2579,10 +2614,11 @@ let pageAnimation=null;
 let introVersion=0;
 let greetingSize=0;
 
-const greetingLines=['방문해 주셔서','감사합니다.'];
+let greetingLines=[];
+const introColor=()=>Math.random()<.78?'#e6c58a':seasons[seasonKey].colors[Math.floor(Math.random()*3)];
 
 function greetingFont(){
-  return `650 ${greetingSize}px Arial,"Malgun Gothic",sans-serif`;
+  return `500 ${greetingSize}px Arial,"Malgun Gothic",sans-serif`;
 }
 
 function configureGreeting(context){
@@ -2601,7 +2637,7 @@ function paintGreeting(context,alpha=1){
     context.fillText(
       line,
       W/2,
-      H*.43+(index-.5)*greetingSize*1.44
+      H*.43+(index-(greetingLines.length-1)/2)*greetingSize*1.44
     );
   });
 
@@ -2615,7 +2651,10 @@ function buildParticles(){
 
   const context=sample.getContext('2d');
 
-  greetingSize=Math.min(W*.112,H*.105,96);
+  greetingLines=W<700?['작은 차이를 발견하고,','하나의 화면으로','만듭니다.']:['작은 차이를 발견하고,','하나의 화면으로 만듭니다.'];
+  const title=$('#introTitle');
+  title.replaceChildren(...greetingLines.map(text=>{const span=document.createElement('span');span.textContent=text;return span;}));
+  greetingSize=Math.min(W*.085,H*.075,68);
   configureGreeting(context);
 
   while(
@@ -2626,10 +2665,12 @@ function buildParticles(){
     configureGreeting(context);
   }
 
+  opening.style.setProperty('--intro-font',greetingSize+'px');
+  opening.style.setProperty('--intro-title-half',greetingLines.length*greetingSize*1.44/2+'px');
   paintGreeting(context);
 
   const data=context.getImageData(0,0,W,H).data;
-  const step=W<700?4:5;
+  const step=W<700?5:7;
 
   particles=[];
 
@@ -2639,24 +2680,27 @@ function buildParticles(){
 
       particles.push({
         x,y,
-        sx:-W*.1+Math.random()*W*.8,
+        sx:W*.12+Math.random()*W*.76,
         sy:H*.25+Math.random()*H*.55,
-        r:.9+Math.random()*1.2,
+        r:.65+Math.random()*.75,
         delay:Math.random()*.18,
         depth:.45+Math.random()*.55,
         seed:Math.random()*Math.PI*2,
-        color:seasons[seasonKey].colors[Math.floor(Math.random()*3)]
+        color:introColor()
       });
     }
   }
 
-  drifting=Array.from({length:W<700?28:46},()=>({
+  const limit=W<700?240:560;
+  if(particles.length>limit){const stride=Math.ceil(particles.length/limit);particles=particles.filter((_,i)=>i%stride===0);}
+
+  drifting=Array.from({length:W<700?14:24},()=>({
     x:Math.random()*W,
     y:Math.random()*H,
-    r:2+Math.random()*4,
+    r:W<700?2.3+Math.random()*2.4:3.2+Math.random()*3.4,
     depth:.4+Math.random()*.6,
     seed:Math.random()*Math.PI*2,
-    color:seasons[seasonKey].colors[Math.floor(Math.random()*3)]
+    color:introColor()
   }));
 }
 
@@ -2682,49 +2726,21 @@ function resize(){
 }
 
 function drawShape(context,x,y,r,angle,color){
-  context.save();
-  context.translate(x,y);
-  context.rotate(angle);
-  context.fillStyle=color;
-  context.strokeStyle=color;
-  context.lineWidth=.7;
-
-  if(seasonKey==='winter'){
-    context.beginPath();
-
-    for(let k=0;k<3;k++){
-      const a=k*Math.PI/3;
-      context.moveTo(-r*Math.cos(a),-r*Math.sin(a));
-      context.lineTo(r*Math.cos(a),r*Math.sin(a));
-    }
-
-    context.stroke();
-  }else if(seasonKey==='spring'){
-    context.beginPath();
-    context.moveTo(0,-r);
-    context.bezierCurveTo(r*1.6,-r*.5,r,r*1.5,0,r);
-    context.bezierCurveTo(-r,r*1.5,-r*1.6,-r*.5,0,-r);
-    context.fill();
-  }else if(seasonKey==='summer'){
-    context.beginPath();
-    context.moveTo(-r*1.4,0);
-    context.quadraticCurveTo(0,-r*1.6,r*1.4,0);
-    context.quadraticCurveTo(0,r*1.6,-r*1.4,0);
-    context.fill();
-  }else{
-    context.beginPath();
-
-    for(let k=0;k<10;k++){
-      const a=k*Math.PI/5-Math.PI/2;
-      const radius=k%2?r*.48:r*1.5;
-      context.lineTo(Math.cos(a)*radius,Math.sin(a)*radius);
-    }
-
-    context.closePath();
-    context.fill();
-  }
-
-  context.restore();
+ context.save();context.translate(x,y);context.rotate(angle);
+ context.fillStyle=color;context.strokeStyle=color;context.lineWidth=.65;
+ context.beginPath();
+ if(r<1.8){context.arc(0,0,r,0,Math.PI*2);context.fill();}
+ else if(seasonKey==='spring'){
+  context.moveTo(0,-r);context.bezierCurveTo(r*1.4,-r*.3,r*.8,r,0,r*1.3);context.bezierCurveTo(-r*1.2,r*.2,-r*.9,-r*.8,0,-r);context.fill();
+ }else if(seasonKey==='summer'){
+  context.shadowColor=color;context.shadowBlur=6;context.arc(0,0,r*.55,0,Math.PI*2);context.fill();
+ }else if(seasonKey==='autumn'){
+  context.moveTo(0,-r*1.5);context.bezierCurveTo(r*1.2,-r*.4,r,r*.8,0,r);context.bezierCurveTo(-r*.8,r*.3,-r*.7,-r*.8,0,-r*1.5);context.fill();context.beginPath();context.moveTo(0,-r);context.lineTo(0,r*1.4);context.stroke();
+ }else{
+  for(let k=0;k<6;k++){const a=k*Math.PI/3,dx=Math.cos(a),dy=Math.sin(a);context.moveTo(0,0);context.lineTo(r*dx,r*dy);if(r>3){context.moveTo(r*.65*dx-r*.2*dy,r*.65*dy+r*.2*dx);context.lineTo(r*.45*dx,r*.45*dy);}}
+  context.stroke();
+ }
+ context.restore();
 }
 
 function rememberIntroVisit(){
@@ -2800,17 +2816,17 @@ async function turnIntroPage(){
       offset:0
     },
     {
-      transform:'perspective(1800px) translateX(-3%) rotateY(-48deg) rotateZ(-1deg)',
-      opacity:1,
+      transform:'perspective(1800px) translateX(-1%) rotateY(-7deg) rotateZ(-.2deg)',
+      opacity:.5,
       offset:.58
     },
     {
-      transform:'perspective(1800px) translateX(-12%) rotateY(-86deg) rotateZ(-2deg)',
+      transform:'perspective(1800px) translateX(-3%) rotateY(-18deg) rotateZ(-.4deg)',
       opacity:0,
       offset:1
     }
   ],{
-    duration:1150,
+    duration:650,
     easing:'cubic-bezier(.4,0,.2,1)',
     fill:'forwards'
   });
@@ -2832,20 +2848,20 @@ function seasonalPose(particle,elapsed){
   let dx,dy,angle;
 
   if(seasonKey==='spring'){
-    dx=W*.38*u*depth+sway*24*u;
+    dx=W*.13*u*depth+sway*24*u;
     dy=H*.16*u*depth-Math.sin(u*2.1)*30*depth;
     angle=particle.seed+u*(1.1+depth);
   }else if(seasonKey==='summer'){
-    dx=W*.43*u*depth;
-    dy=H*.10*u*depth+sway*30*u;
+    dx=W*.12*u*depth;
+    dy=-H*.11*u*depth+sway*12*u;
     angle=particle.seed+Math.sin(u*1.5)*.35;
   }else if(seasonKey==='autumn'){
-    dx=W*.38*u*depth+sway*18*u;
-    dy=H*.23*u*depth;
+    dx=W*.13*u*depth+sway*18*u;
+    dy=H*.12*u*depth;
     angle=particle.seed+u*(2.4+depth);
   }else{
     dx=W*.09*u*depth+sway*16*u;
-    dy=H*.25*u*depth;
+    dy=H*.14*u*depth;
     angle=particle.seed+u*.2;
   }
 
@@ -2872,13 +2888,14 @@ function drawDrifting(t){
       W+40
     )%(W+80)-40;
 
-    const y=(particle.y+travel+H+40)%(H+80)-40;
+    const rise=seasonKey==='summer'?-1:1;
+    const y=(particle.y+travel*rise+H+40)%(H+80)-40;
 
     const nearText=
       Math.abs(x-W/2)<W*.36&&
       Math.abs(y-H*.43)<greetingSize*1.8;
 
-    ic.globalAlpha=fade*(nearText?.07:.26)*particle.depth;
+    ic.globalAlpha=fade*(nearText?.04:.38)*particle.depth;
 
     drawShape(
       ic,x,y,particle.r,
@@ -2891,99 +2908,33 @@ function drawDrifting(t){
 }
 
 function drawIntro(now){
-  const t=(now-introStart)/1000;
-  ic.clearRect(0,0,W,H);
-
-  if(pageTurning){
-    $('#introCaption').style.opacity=0;
-    return;
+ const t=(now-introStart)/1000;
+ ic.clearRect(0,0,W,H);
+ if(pageTurning)return;
+ if(reduced()){
+  opening.style.setProperty('--intro-title-opacity',1);
+  $('#introCaption').style.opacity=1;
+  if(t>2.5)completeIntro();
+  return;
+ }
+ const gather=ease((t-.15)/.85),solid=ease((t-.75)/.55);
+ const release=t-INTRO.release,dissolve=ease(release/.55);
+ opening.style.setProperty('--intro-title-opacity',solid*(1-dissolve));
+ opening.style.setProperty('--intro-reveal',ease((t-(INTRO.release-.15))/1.0));
+ $('#introCaption').style.opacity=ease((t-1.0)/.5)*(1-dissolve);
+ drawDrifting(t);
+ particles.forEach(particle=>{
+  if(release>0){
+   const pose=seasonalPose(particle,release);
+   ic.globalAlpha=.55*dissolve*(1-ease((pose.u-.25)/.8));
+   drawShape(ic,pose.x,pose.y,particle.r*(1+ease(pose.u/.5)*.8),pose.angle,particle.color);
+  }else{
+   ic.globalAlpha=.75*ease(t/.3)*(1-solid);
+   drawShape(ic,lerp(particle.sx,particle.x,gather),lerp(particle.sy,particle.y,gather),particle.r,particle.seed,particle.color);
   }
-
-  if(reduced()){
-    paintGreeting(ic,1);
-    $('#introCaption').style.opacity=1;
-
-    if(t>2.8)completeIntro();
-    return;
-  }
-
-  drawDrifting(t);
-
-  const gather=ease((t-1)/1.5);
-  const solid=ease((t-2.05)/.6);
-  const release=t-INTRO.release;
-  const dissolve=ease(release/.4);
-  const lightAlpha=ease(t/.5)*(1-ease((t-1.15)/1.1));
-
-  if(lightAlpha>0){
-    const x1=W*.12;
-    const x2=lerp(x1,W*.86,ease(t/1.4));
-    const y=H*.43;
-
-    ic.save();
-    ic.globalAlpha=lightAlpha;
-    ic.strokeStyle='#f4d8b5';
-    ic.lineWidth=1;
-    ic.shadowColor='#f4d8b5';
-    ic.shadowBlur=16;
-    ic.beginPath();
-    ic.moveTo(x1,y);
-    ic.lineTo(x2,y);
-    ic.stroke();
-    ic.restore();
-  }
-
-  const speed=seasonKey==='winter'
-    ?.45
-    :seasonKey==='summer'
-      ?.75
-      :1;
-
-  particles.forEach(particle=>{
-    if(release>0){
-      const pose=seasonalPose(particle,release);
-
-      ic.globalAlpha=
-        lerp(.02,1,dissolve)*
-        (1-ease((pose.u-.7)/1.05));
-
-      const size=particle.r*(
-        1+ease(pose.u/.6)*1.5*particle.depth
-      );
-
-      drawShape(
-        ic,pose.x,pose.y,size,
-        pose.angle*ease(pose.u/.45),
-        particle.color
-      );
-    }else{
-      ic.globalAlpha=ease((t-.7)/.6)*(1-solid*.98);
-
-      const float=
-        (1-gather)*Math.sin(t*speed+particle.seed)*12;
-
-      drawShape(
-        ic,
-        lerp(particle.sx,particle.x,gather),
-        lerp(particle.sy,particle.y,gather)+float,
-        particle.r,
-        (1-gather)*(particle.seed+t*speed),
-        particle.color
-      );
-    }
-  });
-
-  ic.globalAlpha=1;
-
-  if(solid>0){
-    paintGreeting(ic,solid*(1-dissolve));
-  }
-
-  $('#introCaption').style.opacity=
-    ease((t-2.65)/.6)*
-    (1-ease((release-.2)/.8));
-
-  if(t>=INTRO.turn)turnIntroPage();
+ });
+ ic.globalAlpha=1;
+ if(t>=INTRO.turn)turnIntroPage();
 }
 
 function startIntro(){
@@ -3022,6 +2973,9 @@ function startIntro(){
   document.body.classList.add('is-intro');
 
   opening.classList.remove('is-turning');
+  opening.style.setProperty('--intro-title-opacity',0);
+  opening.style.setProperty('--intro-reveal',0);
+  opening.style.setProperty('--intro-sky',getComputedStyle($('#pageBackdrop')).getPropertyValue('--sky-panorama-image'));
   revealObserver?.disconnect();
   triggers.forEach(trigger=>trigger.classList.remove('visible'));
 
@@ -3032,7 +2986,7 @@ function startIntro(){
   seasonKey=autoSeason();
 
   $('#seasonLabel').textContent=
-    `${seasonKey.toUpperCase()} IN MOTION · ${seasons[seasonKey].name}`;
+    `${seasonKey.toUpperCase()} · ${seasons[seasonKey].mood}`;
 
   syncMascot();
   buildParticles();
@@ -3056,6 +3010,7 @@ $('#replayButton').addEventListener('click',startIntro);
 let visual=true;
 let frame=0;
 let lastDraw=0;
+let lastIntroDraw=0;
 let pausedAt=0;
 let spectrumLevels=new Float32Array(0);
 let spectrumEnergy=0;
@@ -3295,7 +3250,7 @@ function loop(now){
   frame=0;
   if(document.hidden)return;
 
-  if(introRunning)drawIntro(now);
+  if(introRunning&&now-lastIntroDraw>=33){drawIntro(now);lastIntroDraw=now;}
 
   if(now-lastDraw>33){
     drawSpectrum(now);
