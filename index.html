@@ -1359,11 +1359,11 @@ body.ready:not(.is-intro) .finale-moon{visibility:visible}
 </style>
 <style>
 /* 계절의 별자리는 배경 위에 작고 차분하게 표시합니다. */
-.constellation-caption{position:fixed;z-index:0;pointer-events:none;max-width:280px;opacity:.75;color:#d6c9ad;text-shadow:0 1px 7px #061020}
-.constellation-caption>span{display:block;margin-bottom:7px;font:7px Georgia,serif;letter-spacing:.2em;color:#b3becf}
-.constellation-caption>strong{display:block;font-size:10px;font-weight:400;letter-spacing:.04em;line-height:1.7;word-break:keep-all}
+.constellation-caption{position:fixed;z-index:0;pointer-events:none;max-width:300px;opacity:1;color:#f2dfba;text-shadow:0 1px 4px #020713,0 0 10px #020713}
+.constellation-caption>span{display:block;margin-bottom:7px;font:8px Georgia,serif;letter-spacing:.2em;color:#d3ddec}
+.constellation-caption>strong{display:block;font-size:12px;font-weight:400;letter-spacing:.04em;line-height:1.7;word-break:keep-all}
 body.is-intro .constellation-caption{visibility:hidden}
-@media(max-width:700px){.constellation-caption{max-width:180px;opacity:.6}.constellation-caption>span{font-size:6px;margin-bottom:5px}.constellation-caption>strong{font-size:8px}}
+@media(max-width:700px){.constellation-caption{max-width:180px;opacity:1}.constellation-caption>span{font-size:7px;margin-bottom:5px}.constellation-caption>strong{font-size:10px}}
 </style>
 </head>
 
@@ -3154,11 +3154,23 @@ function drawSpectrum(now){
   const scene=getConstellationScene();
   const stars=scene.stars;
   ac.save();
-  ac.globalCompositeOperation='screen';
-  // 연결선은 약하게, 별은 선보다 또렷하게 보여줍니다.
   if(visual){
-    ac.globalAlpha=(scene.mobile?.1:.17)+Math.min(.1,state.bands[1]*.16+state.flash*.08);
-    ac.strokeStyle='#a8bed8';ac.lineWidth=.7;ac.shadowBlur=0;
+    // 별자리 주변의 밝은 구름을 부드럽게 눌러 선이 배경에 묻히지 않게 합니다.
+    const cx=stars.reduce((sum,star)=>sum+star.x,0)/stars.length;
+    const cy=stars.reduce((sum,star)=>sum+star.y,0)/stars.length;
+    const radius=scene.unit*.85;
+    const veil=ac.createRadialGradient(cx,cy,0,cx,cy,radius);
+    veil.addColorStop(0,'rgba(4,11,25,.62)');
+    veil.addColorStop(.6,'rgba(4,11,25,.3)');
+    veil.addColorStop(1,'rgba(4,11,25,0)');
+    ac.fillStyle=veil;ac.fillRect(cx-radius,cy-radius,radius*2,radius*2);
+  }
+  ac.globalCompositeOperation='screen';
+  // 음악이 없어도 형태를 읽을 수 있는 연결선과 별의 기본 밝기입니다.
+  if(visual){
+    ac.globalAlpha=(scene.mobile?.54:.6)+Math.min(.12,state.bands[1]*.16+state.flash*.08);
+    ac.strokeStyle='#d6dfef';ac.lineWidth=scene.mobile?1.15:1.25;
+    ac.shadowColor='#a8c9ff';ac.shadowBlur=5;
     ac.beginPath();
     scene.definition.lines.forEach(([a,b])=>{ac.moveTo(stars[a].x,stars[a].y);ac.lineTo(stars[b].x,stars[b].y);});
     ac.stroke();
@@ -3168,21 +3180,25 @@ function drawSpectrum(now){
     const detail=reactive?frequency[Math.min(frequency.length-1,star.bin)]/255:0;
     // 위치는 고정하고 실제 주파수·저음 타격에 따라 밝기만 변화시킵니다.
     const pulse=reactive?Math.min(1,energy*(.5+.5*detail)+state.flash*(star.accent?.8:.35)):0;
-    const radius=star.size*(1+pulse*.8);
-    ac.globalAlpha=Math.min(.95,(scene.mobile?.48:.64)+pulse*.3);
+    const radius=star.size*(star.accent?1.5:1.25)*(1+pulse*.65);
+    ac.globalAlpha=Math.min(1,(scene.mobile?.88:.94)+pulse*.12);
     ac.fillStyle=star.band===2?'#dfedff':'#fff0cc';
     ac.shadowColor=star.band===2?'#bad4ff':'#ffe1a2';
-    ac.shadowBlur=4+pulse*17;
+    ac.shadowBlur=9+pulse*17;
     ac.beginPath();ac.arc(star.x,star.y,radius,0,Math.PI*2);ac.fill();
     if(star.accent){
-      const arm=3.6+pulse*9;
-      ac.globalAlpha=(scene.mobile?.18:.25)+pulse*.48;
+      const arm=5.5+pulse*8;
+      ac.globalAlpha=(scene.mobile?.52:.62)+pulse*.28;
       ac.beginPath();
       ac.moveTo(star.x,star.y-arm);ac.lineTo(star.x+.65,star.y-.65);
       ac.lineTo(star.x+arm,star.y);ac.lineTo(star.x+.65,star.y+.65);
       ac.lineTo(star.x,star.y+arm);ac.lineTo(star.x-.65,star.y+.65);
       ac.lineTo(star.x-arm,star.y);ac.lineTo(star.x-.65,star.y-.65);
       ac.closePath();ac.fill();
+      // 주요 별에는 얇은 테두리를 더해 장식용 배경별과 구분합니다.
+      ac.globalAlpha=.3+pulse*.2;ac.strokeStyle='#e6eefa';
+      ac.lineWidth=.65;ac.shadowBlur=0;
+      ac.beginPath();ac.arc(star.x,star.y,radius+3,0,Math.PI*2);ac.stroke();
     }
   });
   ac.restore();
