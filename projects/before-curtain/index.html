@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#451d2b">
+<title>BEFORE CURTAIN — 공연 관람 가이드</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="catalog">
+<header>
+  <div class="shell mast"><span class="brand">BEFORE CURTAIN</span><button type="button" class="etiquette-trigger" aria-haspopup="dialog" aria-controls="etiquette">공연 관람 가이드</button></div>
+</header>
+<dialog id="etiquette" aria-labelledby="etiquette-title">
+  <div class="etiquette-heading">
+    <h2 id="etiquette-title">공연 관람 가이드</h2>
+    <form method="dialog"><button type="submit" autofocus>닫기</button></form>
+  </div>
+  <p>공연장에 도착하기 전부터 객석을 나설 때까지, 함께 공연을 즐기기 위해 알아두면 좋은 기본 에티켓이에요.</p>
+  <ol class="etiquette-list">
+    <li><h3>공연장에 가기 전</h3><p>예매 내역에서 공연장과 홀 이름, 회차, 티켓 수령 방식, 관람 연령을 확인하세요. 현장 수령이나 할인 증빙 확인이 필요하면 시간을 넉넉히 잡으세요.</p></li>
+    <li><h3>입장할 때</h3><p>티켓에 적힌 층과 좌석을 확인하고 안내원의 안내에 따라 이동하세요. 늦게 도착하면 객석 문을 바로 열기보다 입장 가능 시점을 안내원에게 확인하세요.</p></li>
+    <li><h3>공연이 시작되면</h3><p>휴대폰과 스마트워치의 알림과 화면을 꺼 주세요. 대화, 포장지 소리, 잦은 자리 이동을 줄이고 음식물은 공연장 안내에 따라 주세요.</p></li>
+    <li><h3>사진과 영상은 허용된 때에만</h3><p>본 공연과 커튼콜의 촬영 규정이 다를 수 있어요. 사진·영상 촬영이나 녹음을 하기 전에 예매처 공지나 현장 안내를 확인하세요.</p></li>
+    <li><h3>인터미션과 퇴장</h3><p>인터미션이 있다면 다음 막 시작 시각을 확인하고 미리 자리로 돌아오세요. 공연이 끝나면 소지품을 챙기고 통로의 이동 흐름에 맞춰 천천히 나가세요.</p></li>
+  </ol>
+  <p class="etiquette-note">입장, 재입장, 촬영, 음식물 반입은 작품과 공연장마다 달라요. 관람 당일에는 해당 공연의 공지와 현장 안내를 따라 주세요.</p>
+</dialog>
+
+<main class="shell">
+  <aside class="lobby" aria-label="서비스 소개">
+    <div class="curtain" aria-hidden="true"></div>
+    <div class="intro-light" aria-hidden="true"></div>
+    <div class="stage-dust" aria-hidden="true"><i style="--x:19%;--y:41%;--delay:350ms"></i><i style="--x:56%;--y:64%;--delay:406ms"></i><i style="--x:93%;--y:16%;--delay:462ms"></i><i style="--x:33%;--y:39%;--delay:518ms"></i><i style="--x:70%;--y:62%;--delay:574ms"></i><i style="--x:10%;--y:14%;--delay:630ms"></i><i style="--x:47%;--y:37%;--delay:350ms"></i><i style="--x:84%;--y:60%;--delay:406ms"></i><i style="--x:24%;--y:12%;--delay:462ms"></i><i style="--x:61%;--y:35%;--delay:518ms"></i><i style="--x:1%;--y:58%;--delay:574ms"></i><i style="--x:38%;--y:81%;--delay:630ms"></i><i style="--x:75%;--y:33%;--delay:350ms"></i><i style="--x:15%;--y:56%;--delay:406ms"></i><i style="--x:52%;--y:79%;--delay:462ms"></i><i style="--x:89%;--y:31%;--delay:518ms"></i><i style="--x:29%;--y:54%;--delay:574ms"></i><i style="--x:66%;--y:77%;--delay:630ms"></i><i style="--x:6%;--y:29%;--delay:350ms"></i><i style="--x:43%;--y:52%;--delay:406ms"></i><i style="--x:80%;--y:75%;--delay:462ms"></i><i style="--x:20%;--y:27%;--delay:518ms"></i><i style="--x:57%;--y:50%;--delay:574ms"></i><i style="--x:94%;--y:73%;--delay:630ms"></i></div>
+    <div class="shell lobby-copy">
+      <p class="lobby-name">Before<br>Curtain</p>
+      <p class="lobby-desc">보고 싶은 공연을 찾고, 관람을 준비하세요.</p>
+      <div class="intro-actions">
+        <button class="lobby-action" type="button">공연 둘러보기 <span aria-hidden="true">↓</span></button>
+        <button class="intro-replay" type="button">인트로 다시 보기</button>
+      </div>
+    </div>
+  </aside>
+  <section aria-labelledby="screen-title">
+<ol class="steps" aria-label="관람 가이드 진행 단계"></ol>
+<div id="screen"></div>
+</section>
+</main>
+<script src="performances.js" defer></script>
+<script src="app.js" defer></script>
+</body>
+</html>

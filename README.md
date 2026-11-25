@@ -9,18 +9,27 @@ index.html
 projects/
   fresh-note.html
   cue.html
+  before-curtain/
+    index.html
+    guide.html
+    app.js
+    performances.js
+    styles.css
+downloads/
+  shade-korea-work-in-progress.zip
 assets/
   profile-photo.jpg
 ```
 
 - `projects/fresh-note.html`: 업로드한 최신 Fresh Note 원본
 - `projects/cue.html`: 업로드한 최신 CUE 원본
+- `projects/before-curtain/`: 업로드한 BEFORE-CURTAIN-v4.2 원본 5개 파일. 같은 폴더에 함께 보관해야 검색·가이드 이동이 동작합니다.
 - 프로젝트 소개·상세 설명·화면 캡처와 폴더 썸네일은 이 버전에 맞춰 업데이트했습니다.
 - 포트폴리오의 사진과 미리보기 이미지는 `index.html`에도 포함되어 있습니다.
 
 GitHub에서 **Code → Download ZIP**으로 전체 파일을 받아 압축을 푼 뒤 실행하면 프로젝트 연결 경로가 유지됩니다. 웹에 배포할 때도 같은 폴더 구조를 유지해주세요.
 
-Fresh Note의 관리 기록과 CUE의 MY CUE 기록은 사용하는 브라우저에 저장됩니다. 다른 기기나 브라우저로 자동 동기화되지 않으므로 각 앱의 내보내기·백업 기능으로 보관해주세요.
+Fresh Note의 관리 기록, CUE의 MY CUE 기록과 Before Curtain의 관람 준비 체크리스트는 사용하는 브라우저에 저장됩니다. 다른 기기나 브라우저로 자동 동기화되지 않으므로 각 앱의 내보내기·백업 기능으로 보관해주세요.
 
 ## 인트로
 
@@ -57,3 +66,12 @@ Fresh Note의 관리 기록과 CUE의 MY CUE 기록은 사용하는 브라우저
 - 달은 실제 달처럼 섬세한 요철과 금빛 가장자리가 있는 생성 이미지로 표시합니다. 이미지가 HTML에 내장되어 별도로 연결할 필요가 없으며 원본 웹용 파일은 assets/moon-golden-texture.webp에 있습니다. 마지막 폴더 아래에는 화면 높이에 맞는 여백을 두어 중앙 빛줄기가 끝까지 도달하고 보름달을 볼 수 있도록 했습니다.
 
 - 달 전체의 범위를 미리 보여주는 어두운 원판과 고정 원형 후광은 제거했습니다. 스크롤로 드러나는 달의 질감과 그 부분에서 번지는 빛만 표시합니다.
+
+## 프로젝트와 작업 노트
+
+- 프로젝트 폴더에는 Fresh Note, CUE, Before Curtain을 소개합니다. Before Curtain은 실제 첫 화면·관람 가이드 미리보기, 상세 설명, 사이트 방문으로 연결됩니다.
+- Before Curtain의 공연 자료는 업로드한 4.2 버전에 포함된 자료이며 실시간 예매 정보가 아닙니다. 최신 공연 일정과 입장 규정은 각 공식 안내에서 확인합니다.
+- 기존 ‘작업 모음’은 ‘작업 노트’로 바꾸었습니다. SHADE KOREA는 ‘잠시 멈춤’, 인물 사전은 ‘기획 · 틀 단계’로 표시합니다.
+- SHADE KOREA의 설명은 업로드한 5.17 코드를 기준으로 작성했습니다. 실제 경로 입력 화면을 미리 보여주고 작업 파일을 내려받을 수 있습니다. 정적 포트폴리오에서는 지도 API나 서버가 필요한 기능을 직접 실행하지 않습니다.
+- SHADE KOREA 작업 파일에는 로컬 `.env`를 넣지 않았습니다. 압축을 풀고 포함된 README와 `.env.example`을 참고해 지도·경로 API 설정을 준비한 뒤 Node.js 서버로 실행합니다.
+- 인물 사전은 기획과 화면 틀을 잡아둔 초기 단계로 소개하며 실행 링크는 제공하지 않습니다.
