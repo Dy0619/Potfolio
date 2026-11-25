@@ -1172,44 +1172,46 @@ body.visual-paused #pageBackdrop::after{opacity:.45}
 #musicScene{position:fixed;inset:0;width:100vw;height:100vh;height:100dvh;pointer-events:none;z-index:0}
 </style>
 <style>
-/* 프로젝트 폴더 안에서 살짝 보이는 실제 시연 화면 */
-.project-peeks{position:absolute;inset:0;pointer-events:none}
+/* 미리보기는 폴더 안에서만 보이고, 표지는 항상 앞에 놓입니다. */
+#folder-button-1>.project-peeks{position:absolute;inset:36px 14px 14px;overflow:hidden;border-radius:5px;pointer-events:none;z-index:1}
+#folder-button-1>.folder-cover{z-index:2}
 .project-peek{
-  position:absolute;top:-21px;left:5%;width:48%;height:166px;
-  display:block;overflow:hidden;pointer-events:auto;border:1px solid #e4dcc8;border-radius:7px;
-  background:#f1f3e6;box-shadow:0 5px 15px #02071450;
-  transform:rotate(-7deg);transform-origin:50% 100%;
-  transition:transform .45s var(--ease),box-shadow .45s var(--ease);
+ position:absolute;top:0;height:166px;display:block;overflow:hidden;
+ pointer-events:none;border:1px solid #e4dcc8;border-radius:6px;
+ background:#f1f3e6;box-shadow:0 4px 10px #02071435;
+ transform-origin:50% 100%;transition:transform .4s var(--ease);
 }
-.project-peek.peek-cue{top:-4px;left:46%;width:46%;background:#e2dbe6;transform:rotate(6deg)}
-.peek-bar{
-  display:flex;align-items:center;gap:7px;height:24px;padding:0 8px;
-  background:#fbf8f0;color:#494c49;font:10px Georgia,serif;white-space:nowrap;
-  border-bottom:1px solid #6569601c;
-}
-.peek-dots{color:#b4ab98;font:10px Arial;letter-spacing:1px}
+.project-peek.peek-fresh{left:4%;width:42%;z-index:1;transform:rotate(-3deg)}
+.project-peek.peek-cue{left:29%;width:42%;z-index:2;transform:rotate(-1deg);background:#e2dbe6}
+.project-peek.peek-before{left:54%;width:42%;z-index:3;transform:rotate(3deg);background:#421c2a}
+.peek-bar{display:flex;align-items:center;gap:6px;height:24px;padding:0 7px;background:#fbf8f0;color:#494c49;font:9px Georgia,serif;white-space:nowrap;overflow:hidden;border-bottom:1px solid #6569601c}
+.peek-dots{color:#b4ab98;font:9px Arial;letter-spacing:1px}
 .peek-type{margin-left:auto;color:#8a867d;font:6px Arial;letter-spacing:.1em}
 .project-peek img{display:block;width:100%;height:142px;object-fit:cover;object-position:top}
 @media(hover:hover) and (pointer:fine){
-  #folder-button-1:hover .peek-fresh{transform:translateY(-18px) rotate(-8deg)}
-  #folder-button-1:hover .peek-cue{transform:translateY(-13px) rotate(8deg)}
+ #folder-button-1:hover .peek-fresh{transform:translateY(-5px) rotate(-3deg)}
+ #folder-button-1:hover .peek-cue{transform:translateY(-7px) rotate(-1deg)}
+ #folder-button-1:hover .peek-before{transform:translateY(-5px) rotate(3deg)}
 }
-#folder-button-1:focus-visible .peek-fresh{transform:translateY(-18px) rotate(-8deg)}
-#folder-button-1:focus-visible .peek-cue{transform:translateY(-13px) rotate(8deg)}
-#folder-button-1:is(.is-opening,.is-open) .peek-fresh{transform:translateY(-20px) rotate(-8deg)}
-#folder-button-1:is(.is-opening,.is-open) .peek-cue{transform:translateY(-15px) rotate(8deg)}
+#folder-button-1:is(:focus-visible,.is-opening,.is-open) .peek-fresh{transform:translateY(-5px) rotate(-3deg)}
+#folder-button-1:is(:focus-visible,.is-opening,.is-open) .peek-cue{transform:translateY(-7px) rotate(-1deg)}
+#folder-button-1:is(:focus-visible,.is-opening,.is-open) .peek-before{transform:translateY(-5px) rotate(3deg)}
 @media(max-width:700px){
-  .project-peek{top:-16px;left:4%;width:49%;height:143px}
-  .project-peek.peek-cue{top:-2px;left:46%;width:47%}
-  .peek-bar{height:22px;padding:0 6px;gap:5px;font-size:9px}
-  .peek-type{font-size:5px}
-  .project-peek img{height:121px}
+ #folder-button-1>.project-peeks{inset:34px 10px 14px}
+ .project-peek{height:143px}
+ .peek-bar{height:22px;padding:0 5px;gap:4px;font-size:8px}
+ .peek-type{font-size:5px}
+ .project-peek img{height:121px}
 }
-body.visual-paused .project-peek{transition:none;transform:rotate(-7deg)!important}
-body.visual-paused .project-peek.peek-cue{transform:rotate(6deg)!important}
+body.visual-paused .project-peek{transition:none}
+body.visual-paused .project-peek.peek-fresh{transform:rotate(-3deg)!important}
+body.visual-paused .project-peek.peek-cue{transform:rotate(-1deg)!important}
+body.visual-paused .project-peek.peek-before{transform:rotate(3deg)!important}
 @media(prefers-reduced-motion:reduce){
-  .project-peek{transition:none!important;transform:rotate(-7deg)!important}
-  .project-peek.peek-cue{transform:rotate(6deg)!important}
+ .project-peek{transition:none!important}
+ .project-peek.peek-fresh{transform:rotate(-3deg)!important}
+ .project-peek.peek-cue{transform:rotate(-1deg)!important}
+ .project-peek.peek-before{transform:rotate(3deg)!important}
 }
 </style>
 <style>
@@ -1449,12 +1451,7 @@ body.ready:not(.is-intro) .central-moon{visibility:visible}
 .work-status.is-planning{color:#bbc8d8;border-color:#a8b5d14a}
 .workbench-download{display:inline-flex;align-items:center;gap:14px;font-size:11px;color:#c5bca9;line-height:1.6;padding:12px 0;text-underline-offset:5px;min-height:44px}
 #detailDownload{margin-top:12px}
-.project-peek.peek-before{top:-14px;left:57%;width:42%;background:#421c2a;transform:rotate(6deg);z-index:3}
-.project-peek.peek-fresh{left:1%;width:43%;z-index:1}
-.project-peek.peek-cue{left:29%;width:43%;top:-24px;transform:rotate(-2deg);z-index:2}
-.peek-bar{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-@media(max-width:700px){.workbench-preview>img,.workbench-wireframe{height:190px}.project-peek.peek-before{left:56%;width:43%;top:-8px}.project-peek.peek-cue{left:29%;width:43%;top:-20px}.project-peek.peek-fresh{left:1%;width:43%}}
-@media(prefers-reduced-motion:reduce){.project-peek.peek-before{transform:rotate(6deg)!important}}
+@media(max-width:700px){.workbench-preview>img,.workbench-wireframe{height:190px}}
 </style>
 </head>
 
