@@ -4,13 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#0b1426">
-<title>D.Lune · Reactive Water</title>
+<title>D.Lune · 강도엽 | 디자인 &amp; 웹</title>
+<meta name="description" content="일상의 작은 질문을 디자인과 웹으로 풀어가는 강도엽의 포트폴리오입니다. 직접 만든 프로젝트와 작업의 과정을 소개합니다.">
 <script>
 (()=>{
-  const key='dlune-intro-seen-v1';
+  // 같은 탭의 새로고침만 생략합니다. 새 진입에서는 복원된 저장값도 사용하지 않습니다.
+  const key='dlune-intro-session-v2';
+  const navigation=performance.getEntriesByType('navigation')[0];
   let seen=false;
-  try{seen=localStorage.getItem(key)==='1';}catch{}
-  if(!seen){try{seen=sessionStorage.getItem(key)==='1';}catch{}}
+  try{seen=navigation?.type==='reload'&&sessionStorage.getItem(key)==='1';}catch{}
   window.__dlIntroSeen=seen;
   if(seen)document.documentElement.classList.add('intro-seen');
 })();
@@ -1527,11 +1529,11 @@ body.visual-paused .project-peek.peek-archive{transform:rotate(3deg)!important}
     <div>
       <p class="eyebrow">강도엽 · 디자인과 웹 구현</p>
       <h1 id="archiveTitle">작은 차이를<br>다듬어 온 기록.</h1>
-      <p class="hero-role">사용하기 편한 화면을 설계하고,<br>웹으로 구현하는 강도엽입니다.</p>
-      <p class="hero-note">빛을 따라 저의 이야기와 작업을 만나보세요.</p>
+      <p class="hero-role">일상의 작은 질문을 발견하고,<br>디자인과 웹으로 풀어가는 강도엽입니다.</p>
+      <p class="hero-note">생각을 정리하고, 직접 만들며 다듬은 작업들을 모았습니다.</p>
       <div class="hero-actions">
         <button class="project-primary" id="viewProjects" data-go="1" aria-controls="folder-panel-1">프로젝트 보기 <span aria-hidden="true">↗</span></button>
-        <button class="text-button" id="explore">기록 따라 내려가기 <span aria-hidden="true">↓</span></button>
+        <button class="text-button" id="explore">소개부터 살펴보기 <span aria-hidden="true">↓</span></button>
       </div>
     </div>
     <span class="hero-beam" aria-hidden="true"></span>
@@ -1593,7 +1595,7 @@ body.visual-paused .project-peek.peek-archive{transform:rotate(3deg)!important}
     </div>
   </div>
 
-  <h1 id="introTitle"><span>작은 차이를 발견하고,</span><span>하나의 화면으로 만듭니다.</span></h1>
+  <h1 id="introTitle"><span>작은 질문에서 시작해,</span><span>하나의 화면을 만듭니다.</span></h1>
   <p id="introCaption">강도엽 · 디자인 & 웹</p>
   <small id="seasonLabel" class="intro-season"></small>
 </div>
@@ -1628,15 +1630,15 @@ body.visual-paused .project-peek.peek-archive{transform:rotate(3deg)!important}
       <figcaption><span>강도엽</span><small>D.LUNE ARCHIVE</small></figcaption>
     </figure>
     <div class="reading about-copy">
-    <h3>직접 만들며,<br>작은 차이를 발견합니다.</h3>
+    <h3>생각을 화면으로 옮기고,<br>직접 쓰며 다듬습니다.</h3>
     <p>
-      HTML, CSS, JavaScript로 화면을 구현하고, Figma와 Photoshop으로
-      시각적인 방향을 구체화합니다. 사용자가 마주하는 정보와 움직임의
-      흐름을 생각하며 화면을 다듬습니다.
+      일상에서 마주친 불편이나 궁금함을 프로젝트의 출발점으로 삼습니다.
+      필요한 정보와 사용 흐름을 정리하고, Figma와 Photoshop으로 시각적인
+      방향을 구체화한 뒤 HTML, CSS, JavaScript로 구현합니다.
     </p>
     <p>
-      직접 수정하고 전후를 비교하며 완성도를 높입니다.
-      작은 차이도 놓치지 않고 끝까지 다듬는 태도를 지향합니다.
+      만든 화면은 직접 사용하고, 크기를 바꾸고, 전후를 비교하며 다듬습니다.
+      보기 좋은 화면과 사용하기 편한 흐름이 함께 남도록 작은 부분까지 살핍니다.
     </p>
     <div class="info-grid">
       <div><b>DESIGN</b>Figma · Photoshop · UI/UX</div>
@@ -1786,8 +1788,8 @@ body.visual-paused .project-peek.peek-archive{transform:rotate(3deg)!important}
 
 <template id="contactContent">
   <div class="content reading contact-content">
-    <h3>함께 만들<br>다음 화면을 기다립니다.</h3>
-    <p class="contact-intro">작업에 대한 이야기나 함께할 제안이 있다면 편하게 연락해주세요.</p>
+    <h3>작은 이야기부터,<br>편하게 전해주세요.</h3>
+    <p class="contact-intro">프로젝트에 대한 질문이나 협업 제안이 있다면 아래 연락처로 전해주세요.</p>
     <div id="contactLinks" class="contact-methods"></div>
     <p id="contactCopyStatus" class="contact-copy-status" role="status" aria-live="polite" aria-atomic="true"></p>
   </div>
@@ -1827,26 +1829,26 @@ const scrollToElement=element=>element.scrollIntoView({
 const folders=[
   [
     '자기소개','ABOUT ME','제가 화면을 만드는 방식',
-    'HTML · CSS · JavaScript','화면 너머의 사람.',
-    '디자인이라는 언어로<br>일상의 장면에 조금 더 좋은 온도를 더하는,<br>그 과정을 좋아하는 사람입니다.<br>지금까지의 발자국을 이곳에 모아두었습니다.',
+    'HTML · CSS · JavaScript','화면을 만드는 사람.',
+    '무엇이 필요한지 생각하고,<br>직접 만들고 쓰며 화면을 다듬습니다.<br>그 과정에서 쌓인 생각과 작업을 소개합니다.',
     'aboutContent'
   ],
   [
     '프로젝트','PROJECTS','일상에서 출발한 네 가지 웹',
-    '식생활 · 마음 · 공연 · 역사','생각이 화면이 되는 과정.',
-    '냉장고 속 재료와 오늘의 마음,<br>공연 준비와 한국사 인물의 이야기까지.<br>작은 질문들을 사용할 수 있는 화면으로 옮겼습니다.',
+    '식생활 · 마음 · 공연 · 역사','생각을 화면으로 만든 작업들.',
+    '식생활과 마음의 기록부터,<br>공연 준비와 한국사 인물 탐색까지.<br>작은 질문에서 출발한 네 가지 웹을 소개합니다.',
     'projectContent'
   ],
   [
-    '작업 노트','IN PROGRESS','아이디어를 화면으로 옮기는 중',
-    '제작 중 · 잠시 멈춘 실험','아직 만들어가는 이야기.',
-    '어떤 화면을 만들면 좋을까.<br>진행 중인 작업과 잠시 멈춰둔 아이디어도<br>이곳에 차곡차곡 남깁니다.',
+    '작업 노트','IN PROGRESS','다음 작업으로 이어갈 생각들',
+    '잠시 멈춘 실험 · 다음 아이디어','멈춰둔 질문과 다음 아이디어.',
+    '잠시 멈춘 SHADE KOREA와<br>다음 작업으로 이어갈 생각을 남깁니다.',
     'processContent'
   ],
   [
     '연락처','CONTACT','함께 만들 다음 화면',
-    '이메일 · 프로필','함께 만들 다음 장면.',
-    '새로운 경험을 만들 기회를<br>기다리고 있습니다.',
+    '전화 · 이메일','함께 만들 다음 화면.',
+    '아이디어를 나누거나<br>함께 만들고 싶은 작업이 있다면 연락해주세요.',
     'contactContent'
   ]
 ];
@@ -2916,7 +2918,7 @@ function buildParticles(){
 
   const context=sample.getContext('2d');
 
-  greetingLines=W<700?['작은 차이를 발견하고,','하나의 화면으로','만듭니다.']:['작은 차이를 발견하고,','하나의 화면으로 만듭니다.'];
+  greetingLines=W<700?['작은 질문에서 시작해,','하나의 화면을','만듭니다.']:['작은 질문에서 시작해,','하나의 화면을 만듭니다.'];
   const title=$('#introTitle');
   title.replaceChildren(...greetingLines.map(text=>{const span=document.createElement('span');span.textContent=text;return span;}));
   greetingSize=Math.min(W*.085,H*.075,68);
@@ -3010,8 +3012,7 @@ function drawShape(context,x,y,r,angle,color){
 
 function rememberIntroVisit(){
   window.__dlIntroSeen=true;
-  try{localStorage.setItem('dlune-intro-seen-v1','1');}
-  catch{try{sessionStorage.setItem('dlune-intro-seen-v1','1');}catch{}}
+  try{sessionStorage.setItem('dlune-intro-session-v2','1');}catch{}
 }
 
 function completeIntro({returning=false}={}){
