@@ -2593,7 +2593,7 @@ let analyser=null;
 let audioSource=null;
 let frequency=null;
 const music={
-  wanted:false,
+  wanted:true,
   pending:false,
   blocked:false,
   failed:false,
@@ -2626,12 +2626,12 @@ function updateMusic(){
   $('#musicButton').setAttribute('aria-label',label);
   $('#musicButton').title=music.failed
     ?'배경음악을 다시 재생하기'
-    :label;
+    :music.blocked||graphWaiting?'자동 재생이 제한되었습니다. 화면을 누르면 음악이 시작됩니다.':label;
 
   $('#openingMusic').setAttribute('aria-pressed',String(playing));
   $('#openingMusic').textContent=music.failed
     ?'음악 다시 시도 ♪'
-    :playing?'음악 끄기 ♪':buffering?'음악 준비 중…':'음악과 함께 보기 ♪';
+    :playing?'음악 끄기 ♪':buffering?'음악 준비 중…':music.blocked||graphWaiting?'음악 시작 ♪':'음악과 함께 보기 ♪';
 }
 
 function connectAudioGraph(){
