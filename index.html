@@ -1052,6 +1052,12 @@ body.visual-paused #folder-button-1 .project-peek{--peek-offset:0px;transition:n
 #yeobaekDock.is-collapsed .mascot-toggle{width:42px;height:42px;padding:0;box-shadow:0 5px 20px #0004}
 #yeobaekDock.is-collapsed .mascot-toggle svg{width:21px;height:21px}
 #yeobaekDock.is-collapsed .mascot-toggle-label{display:none}
+@media(max-height:480px) and (min-width:701px){
+ .hero{padding-top:110px}
+ #yeobaekDock .mascot-button{width:88px;height:132px}
+ #yeobaekDock .mascot-message{display:none}
+}
+
 @media(max-width:700px){
  .hero-actions{gap:14px 20px;margin-top:22px}
  .project-primary{font-size:12px;padding:13px 15px;gap:18px}
@@ -3363,10 +3369,19 @@ function setMascotCollapsed(collapsed,persist=false){
   if(collapsed){clearTimeout(mascotTimer);mascot.classList.remove('is-waving');}
   if(persist){try{localStorage.setItem('dlune-mascot-collapsed-v1',String(collapsed));}catch{}}
 }
-let mascotCollapsed=false;
-try{mascotCollapsed=localStorage.getItem('dlune-mascot-collapsed-v1')==='true';}catch{}
-setMascotCollapsed(mascotCollapsed);
-mascotToggle.addEventListener('click',()=>setMascotCollapsed(!mascotContents.hidden,true));
+const compactMascot=matchMedia('(max-width:480px), (max-height:480px)');
+let mascotPreference=null;
+try{mascotPreference=localStorage.getItem('dlune-mascot-collapsed-v1');}catch{}
+function syncMascotSize(){
+  setMascotCollapsed(mascotPreference===null?compactMascot.matches:mascotPreference==='true');
+}
+syncMascotSize();
+compactMascot.addEventListener('change',syncMascotSize);
+mascotToggle.addEventListener('click',()=>{
+  const collapsed=!mascotContents.hidden;
+  mascotPreference=String(collapsed);
+  setMascotCollapsed(collapsed,true);
+});
 
 
 function greetMascot(message='함께 기록을 펼쳐볼까요?'){
