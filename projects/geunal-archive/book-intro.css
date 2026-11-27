@@ -1,22 +1,3 @@
-.site-header-actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px 24px;
-}
-
-.intro-replay {
-  border: 1px solid var(--line);
-  background: none;
-  color: var(--green);
-  padding: 5px 11px;
-  font-size: .875rem;
-}
-
-.intro-replay:hover {
-  background: #e8deca;
-}
-
 html:has(.book-intro[open]) {
   overflow: hidden;
 }
@@ -27,6 +8,7 @@ html:has(.book-intro[open]) {
   --leaf-height: min(61svh, 27.5rem);
   --leaf-width: min(71vw, 45svh, 20rem);
   --intro-spread: .96;
+  --intro-duration: 1640ms;
   position: fixed;
   inset: 0;
   width: 100%;
@@ -86,8 +68,7 @@ html:has(.book-intro[open]) {
 }
 
 .intro-book:focus-visible,
-.intro-open:focus-visible,
-.intro-skip:focus-visible {
+.intro-open:focus-visible {
   outline: 2px solid #ffdc99;
   outline-offset: 6px;
 }
@@ -139,14 +120,17 @@ html:has(.book-intro[open]) {
   display: grid;
   place-content: center;
   gap: .5em;
+  padding-inline: 14px;
   text-align: center;
   color: #34463c;
   font-family: var(--serif);
 }
 
 .intro-title-page strong {
-  font-size: clamp(1rem, 4.2vw, 2rem);
+  font-size: clamp(1rem, 4vw, 1.75rem);
   font-weight: 700;
+  line-height: 1.35;
+  text-wrap: balance;
 }
 
 .intro-title-page small {
@@ -236,17 +220,19 @@ html:has(.book-intro[open]) {
 .intro-cover-edition {
   color: var(--intro-gold);
   font-size: clamp(.76rem, 2.4vw, .9rem);
-  letter-spacing: .14em;
+  letter-spacing: .06em;
+  text-align: center;
 }
 
 .intro-cover-title {
   align-self: center;
   writing-mode: vertical-rl;
   color: var(--intro-paper);
-  font-size: clamp(1.5rem, min(8vw, 7.1svh), 2.85rem);
+  font-size: clamp(1.15rem, 4.1svh, 1.95rem);
   font-weight: 700;
   line-height: 1;
-  letter-spacing: .12em;
+  letter-spacing: .08em;
+  white-space: nowrap;
   text-shadow: 0 2px 2px #14271d;
 }
 
@@ -262,19 +248,9 @@ html:has(.book-intro[open]) {
   line-height: 1;
 }
 
-.intro-commands {
-  display: grid;
-  justify-items: center;
-  gap: 7px;
-}
-
-.intro-open,
-.intro-skip {
-  min-height: 44px;
-}
-
 .intro-open {
   min-width: 9rem;
+  min-height: 44px;
   padding: 8px 22px;
   border: 1px solid var(--intro-gold);
   border-radius: 2px;
@@ -287,16 +263,6 @@ html:has(.book-intro[open]) {
   background: #fff1d2;
 }
 
-.intro-skip {
-  padding: 6px 15px;
-  border: 0;
-  background: transparent;
-  color: var(--intro-paper);
-  text-decoration: underline;
-  text-underline-offset: .25em;
-  font-size: .92rem;
-}
-
 @media (hover: hover) {
   .book-intro:not([data-turning]) .intro-book:hover .intro-cover {
     transform: translateZ(6px) rotateY(-7deg);
@@ -304,27 +270,28 @@ html:has(.book-intro[open]) {
 }
 
 .book-intro[data-turning] {
-  animation: intro-dissolve 1060ms ease-in-out both;
+  animation: intro-dissolve var(--intro-duration) ease-in-out both;
 }
 
-.book-intro[data-turning] .intro-volume {
-  animation: intro-spread 975ms cubic-bezier(.22, .7, .28, 1) both;
+.book-intro[data-turning] .intro-book {
+  animation: intro-approach var(--intro-duration) both;
+  outline: none;
 }
 
 .book-intro[data-turning] .intro-cover {
-  animation: intro-cover-turn 820ms cubic-bezier(.35, .1, .25, 1) both;
+  animation: intro-cover-turn 1040ms cubic-bezier(.35, .1, .25, 1) both;
 }
 
 .book-intro[data-turning] .intro-leaf--two {
-  animation: intro-leaf-turn 650ms 145ms cubic-bezier(.48, .03, .29, 1) both;
+  animation: intro-leaf-turn 720ms 180ms cubic-bezier(.48, .03, .29, 1) both;
 }
 
 .book-intro[data-turning] .intro-leaf--one {
-  animation: intro-leaf-turn 620ms 265ms cubic-bezier(.48, .03, .29, 1) both;
+  animation: intro-leaf-turn 690ms 330ms cubic-bezier(.48, .03, .29, 1) both;
 }
 
 .book-intro[data-turning] .intro-open {
-  opacity: .45;
+  animation: intro-button-out 270ms ease-out both;
   cursor: default;
 }
 
@@ -338,22 +305,32 @@ html:has(.book-intro[open]) {
   to { transform: translateZ(3px) rotateY(-157deg); }
 }
 
-@keyframes intro-spread {
-  to { transform: scale(var(--intro-spread)) translateX(48%); }
+@keyframes intro-approach {
+  0% {
+    transform: translate(0, 0) scale(1);
+    animation-timing-function: cubic-bezier(.22, .7, .28, 1);
+  }
+  57% {
+    transform: scale(var(--intro-spread)) translateX(48%);
+    animation-timing-function: cubic-bezier(.4, 0, .25, 1);
+  }
+  100% {
+    transform: translate(var(--intro-center-x, 0px), var(--intro-center-y, 0px)) scale(var(--intro-zoom, 3));
+  }
+}
+
+@keyframes intro-button-out {
+  to { opacity: 0; }
 }
 
 @keyframes intro-dissolve {
-  0%, 76% { opacity: 1; }
+  0%, 78% { opacity: 1; }
   100% { opacity: 0; }
 }
 
 @media (max-width: 690px) {
   .book-intro {
     --intro-spread: .64;
-  }
-
-  .site-header-actions {
-    gap: 5px 12px;
   }
 }
 
@@ -375,7 +352,7 @@ html:has(.book-intro[open]) {
   }
 
   .intro-cover-title {
-    font-size: min(6.3svh, 2rem);
+    font-size: min(4svh, 1.35rem);
   }
 
   .intro-cover-front {
@@ -392,7 +369,8 @@ html:has(.book-intro[open]) {
 
 @media (prefers-reduced-motion: reduce) {
   .book-intro[data-turning],
-  .book-intro[data-turning] .intro-volume,
+  .book-intro[data-turning] .intro-book,
+  .book-intro[data-turning] .intro-open,
   .book-intro[data-turning] .intro-cover,
   .book-intro[data-turning] .intro-leaf {
     animation: none;

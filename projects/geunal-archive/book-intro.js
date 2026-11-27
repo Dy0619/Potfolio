@@ -2,14 +2,10 @@
   const intro = document.querySelector('#book-intro');
   if (typeof intro?.showModal !== 'function') return;
 
-  const replay = document.querySelector('#intro-replay');
   const cover = intro.querySelector('.intro-book');
   const open = intro.querySelector('.intro-open');
-  const skip = intro.querySelector('.intro-skip');
-  const title = document.querySelector('#section-title');
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   const sessionKey = 'geunal-book-intro-seen';
-  let replaying = false;
 
   function hasVisited() {
     try {
@@ -31,7 +27,7 @@
     delete intro.dataset.turning;
     cover.removeAttribute('aria-disabled');
     open.removeAttribute('aria-disabled');
-    if (restoreFocus) (replaying ? replay : title).focus({ preventScroll: true });
+    if (restoreFocus) document.querySelector('#section-title')?.focus({ preventScroll: true });
   }
 
   function openBook() {
@@ -41,6 +37,15 @@
       return;
     }
 
+    const book = cover.getBoundingClientRect();
+    const viewport = intro.getBoundingClientRect();
+    const centerX = viewport.left + (viewport.width - book.width) / 2 - book.left;
+    const centerY = viewport.top + (viewport.height - book.height) / 2 - book.top;
+    const zoom = Math.max(viewport.width / book.width, viewport.height / book.height) * 1.08;
+    cover.style.setProperty('--intro-center-x', centerX + 'px');
+    cover.style.setProperty('--intro-center-y', centerY + 'px');
+    cover.style.setProperty('--intro-zoom', zoom);
+
     cover.setAttribute('aria-disabled', 'true');
     open.setAttribute('aria-disabled', 'true');
     intro.dataset.turning = 'true';
@@ -48,7 +53,6 @@
 
   cover.addEventListener('click', openBook);
   open.addEventListener('click', openBook);
-  skip.addEventListener('click', () => dismiss());
   intro.addEventListener('cancel', event => {
     event.preventDefault();
     dismiss();
@@ -60,11 +64,6 @@
   }
 
   window.addEventListener('hashchange', () => dismiss(false));
-  replay.hidden = false;
-  replay.addEventListener('click', () => {
-    replaying = true;
-    intro.showModal();
-  });
 
   if ((!location.hash || location.hash === '#home') && !hasVisited()) {
     intro.showModal();

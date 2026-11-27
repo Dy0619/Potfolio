@@ -3,6 +3,7 @@ const works = publishedEntries.filter(entry => workTypes.includes(entry.type));
 const workIds = new Set(works.map(work => work.id));
 const publishedPeople = publishedEntries.filter(entry => entry.type === '인물');
 const publishedById = new Map(publishedEntries.map(entry => [entry.id, entry]));
+const browseSources = {people: publishedPeople, index: publishedEntries, works};
 const personEraLinks = new Map(personEraMemberships);
 const presidentOrder = new Map(presidentDisplayOrder);
 
@@ -11,6 +12,21 @@ const input = document.querySelector('#query');
 const book = document.querySelector('#archive-book');
 const pageHeading = document.querySelector('#page-heading');
 const eraNavigation = document.querySelector('#era-navigation');
+const eventNavigation = document.querySelector('#event-navigation');
+const contentsSections = [
+ [document.querySelector('#era-toggle'), eraNavigation],
+ [document.querySelector('#event-toggle'), eventNavigation]
+];
+function openContents(target) {
+ for (const [button, navigation] of contentsSections) {
+  const open = navigation === target;
+  button.setAttribute('aria-expanded', String(open));
+  navigation.hidden = !open;
+ }
+}
+for (const [button, navigation] of contentsSections) {
+ button.addEventListener('click', () => openContents(navigation.hidden ? navigation : null));
+}
 const chapterLinks = document.querySelectorAll('.chapter-nav a');
 const pageTurn = document.querySelector('.page-turn');
 const normalize = value => value.normalize('NFKC').replace(/[\s·《》]/g,'').toLowerCase();
@@ -69,7 +85,11 @@ function card(entry, reason, {showSummary = false, searchWork = false, titleTag 
   }
   link.classList.add('work-card');
   const copy = node('div', '', 'card-copy');
-  copy.append(title, label, description, ...connection);
+  copy.append(title, label);
+  if (catalogue && entry.periodDetail) {
+   copy.append(node('p', workEraLabel(entry), 'work-era-label'));
+  }
+  copy.append(description, ...connection);
   if (catalogue) {
    const people = entry.related.map(([id]) => publishedById.get(id)).filter(person => person?.type === '인물');
    const names = [...new Set(people.map(person => person.name))].slice(0, 2);
@@ -180,16 +200,25 @@ function showDetail(entry) {
  const isPerson = entry.type === '인물';
  const isWork = workIds.has(entry.id);
  const back = node('a', isPerson ? '인물 차례' : isWork ? '작품 목록' : '표제어 목록', 'back');
- back.href = lastBrowseRoutes.get(isPerson ? 'people' : isWork ? 'works' : 'index') || (isPerson ? '#people' : isWork ? '#works' : '#index');
+ const browsePage = isPerson ? 'people' : isWork ? 'works' : 'index';
+ back.href = lastBrowseRoutes.get(browsePage) || '#' + browsePage;
  content.append(back);
  if (isPerson) {
   appendProfile(entry);
+  appendRelatedEvents(entry.id);
  } else {
   heading(entry.name, [entry.type, entry.note].filter(Boolean).join(' · '));
   const detail = node('div', '', 'detail');
   detail.append(node('p', entry.summary));
   if (entry.detail) detail.append(node('p', entry.detail));
   if (isWork) {
+   const era = workEraLabel(entry);
+   if (era) {
+    const scope = node('dl', '', 'work-era');
+    scope.append(node('dt', '다루는 시대'), node('dd', era));
+    if (entry.periodDetail) scope.append(node('dt', '배경과 범위'), node('dd', entry.periodDetail));
+    detail.append(scope);
+   }
    const layout = node('div', '', 'work-detail');
    layout.append(poster(entry, true), detail);
    content.append(layout);
@@ -233,19 +262,32 @@ function showSearch(query) {
  input.value = query;
  const key = normalize(query);
  const matches = key ? publishedEntries.filter(entry => [entry.name, ...entry.aliases].some(name => normalize(name).includes(key))) : [];
+ const matchesEvent = event => [event.title, ...event.aliases].some(name => normalize(name).includes(key));
+ const directEvents = key ? historicalEvents.filter(matchesEvent) : [];
+ const directRecords = key ? foundationRecords.filter(matchesEvent) : [];
  const direct = new Set(matches.map(entry => entry.id));
+ const directEventIds = new Set(directEvents.map(event => event.id));
+ const linkedEvents = [...new Set(matches.flatMap(entry => eventsByPerson.get(entry.id) || []))]
+  .filter(event => !directEventIds.has(event.id));
  const related = new Map();
  for (const entry of matches) {
   for (const [id, reason] of entry.related) {
    if (publishedById.has(id) && !direct.has(id) && !related.has(id)) related.set(id, reason);
   }
  }
- heading('‘' + query + '’ 검색 결과', '직접 일치 ' + matches.length + '개', pageHeading);
- if (!matches.length) {
-  content.append(node('p','일치하는 표제어가 없어요. 김구, 유관순, 김대중처럼 수록된 이름으로 검색해 보세요.'));
+ heading('‘' + query + '’ 검색 결과', '직접 일치 ' + (matches.length + directEvents.length + directRecords.length) + '개', pageHeading);
+ if (!matches.length && !directEvents.length && !directRecords.length) {
+  content.append(node('p', '일치하는 항목이 없어요. 인물 이름이나 사건명, 작품 제목으로 다시 검색해 보세요.'));
   return;
  }
- grid(matches.map(entry => card(entry)));
+ if (matches.length) grid(matches.map(entry => card(entry)));
+ appendFoundationRecords(directRecords);
+ if (directEvents.length) {
+  content.append(node('h3', '일치하는 사건'), eventList(directEvents, 'h4'));
+ }
+ if (linkedEvents.length) {
+  content.append(node('h3', '관련 사건'), eventList(linkedEvents, 'h4'));
+ }
  if (related.size) {
   content.append(node('h3', '관련 역사와 작품'));
   grid([...related].map(([id, reason]) => card(publishedById.get(id), reason, {searchWork: true})));
@@ -298,25 +340,41 @@ function eraFor(entry) {
  eraCache.set(entry.id, result);
  return result;
 }
+const browseEraCache = new Map();
 function browseErasFor(entry) {
+ if (browseEraCache.has(entry.id)) return browseEraCache.get(entry.id);
  const [primary] = eraFor(entry);
- const eras = new Set([primary, ...(personEraLinks.get(entry.id) || [])]);
+ const eras = new Set([primary, ...(entry.relatedPeriods || []), ...(personEraLinks.get(entry.id) || [])]);
  for (const era of eras) {
   const umbrella = umbrellaErasByMember.get(era);
   if (umbrella) eras.add(umbrella);
  }
+ browseEraCache.set(entry.id, eras);
  return eras;
+}
+function workEraLabel(entry) {
+ const eras = new Set([eraFor(entry)[0], ...(entry.relatedPeriods || [])]);
+ return browseEras.filter(([key]) => key !== 'unclassified' && eras.has(key))
+  .map(([, label]) => label).join(' · ');
 }
 const nameOrder = new Intl.Collator('ko', {numeric: true});
 const lastBrowseRoutes = new Map();
 function browseRoute(page, era, sort) {
  return '#' + page + (era === 'all' && sort === 'era' ? '' : '/' + era + (sort === 'era' ? '' : '/' + sort));
 }
-function showEraNavigation(page, era, sort, source) {
+const eraCountsBySource = new Map();
+function getEraCounts(source) {
+ if (eraCountsBySource.has(source)) return eraCountsBySource.get(source);
  const counts = new Map();
  for (const entry of source) {
   for (const key of browseErasFor(entry)) counts.set(key, (counts.get(key) || 0) + 1);
  }
+ eraCountsBySource.set(source, counts);
+ return counts;
+}
+function showEraNavigation(page, era, sort) {
+ const source = browseSources[page];
+ const counts = getEraCounts(source);
  const primaryEras = ['gojoseon', 'goguryeo', 'baekje', 'silla', 'gaya', 'buyeo', 'ancient', 'balhae', 'north-south', 'later-three', 'goryeo', 'joseon', 'empire', 'modern'];
  const visibleEras = browseEras.filter(([key]) => counts.has(key) || primaryEras.includes(key) || key === era);
  for (const [key, label] of [['all', '전체'], ...visibleEras]) {
@@ -349,16 +407,19 @@ function browseControls(page, era, sort) {
  content.append(bar);
 }
 function showBrowse(page, era, sort) {
- const source = page === 'works' ? works : page === 'index' ? publishedEntries : publishedPeople;
- const title = page === 'works' ? '작품 목록' : page === 'index' ? '표제어 색인' : '인물 색인';
+ const source = browseSources[page];
+ const title = page === 'works' ? '작품 목록' : page === 'index' ? '표제어 색인' : '인물 검색';
  const unit = page === 'works' ? '편' : page === 'index' ? '개' : '명';
- const validEra = eraByKey.has(era) ? era : 'all';
+ const available = eraByKey.has(era)
+  && (era !== 'unclassified' || getEraCounts(source).has(era));
+ const validEra = available ? era : 'all';
  const validSort = sort === 'name' || (sort === 'type' && page === 'works') ? sort : 'era';
  lastBrowseRoutes.set(page, browseRoute(page, validEra, validSort));
  const filtered = validEra === 'all' ? [...source] : source.filter(entry => browseErasFor(entry).has(validEra));
  heading(title, (validEra === 'all' ? '전체' : eraByKey.get(validEra)) + ' · ' + filtered.length.toLocaleString('ko-KR') + unit, pageHeading);
- showEraNavigation(page, validEra, validSort, source);
+ showEraNavigation(page, validEra, validSort);
  browseControls(page, validEra, validSort);
+ if (page === 'people') appendFoundationRecords(foundationRecords.filter(record => record.era === validEra || validEra === 'ancient'));
  if (validEra === 'ancient') content.append(node('p', '고구려·백제·신라·가야·부여와 주변 세력의 기록을 함께 볼 수 있어요.', 'era-context'));
  if (validEra === 'north-south') content.append(node('p', '통일신라와 발해 인물, 두 나라 밖에서 활동한 같은 시기의 인물을 함께 볼 수 있어요.', 'era-context'));
  if (validEra === 'buyeo' && page !== 'works') content.append(node('p', '사료에서 활동이 확인되는 부여 인물을 모았습니다. 갈사국 관련 인물도 찾아볼 수 있어요.', 'era-context'));
@@ -401,7 +462,9 @@ function render(moveFocus) {
  let value = '';
  try { value = decodeURIComponent(encoded || ''); } catch {}
  const isBrowse = ['people', 'index', 'works'].includes(page);
- const view = page === 'entry' ? 'detail' : page === 'search' ? 'search' : isBrowse ? page : 'people';
+ const isEventPage = page === 'events' || page === 'event';
+ const view = page === 'entry' ? 'detail' : page === 'search' || isEventPage || isBrowse ? page : 'people';
+ const eventChapter = page === 'event' ? eventsById.get(value)?.chapter : eventChapterLabels.has(value) ? value : 'all';
  const detail = view === 'detail' ? publishedById.get(value) : null;
  const activeChapter = detail
   ? detail.type === '인물' ? 'people' : workIds.has(detail.id) ? 'works' : 'index'
@@ -420,8 +483,19 @@ function render(moveFocus) {
  content.replaceChildren();
  pageHeading.replaceChildren();
  eraNavigation.replaceChildren();
- if (view === 'search') {
-  showEraNavigation('people', 'all', 'era', publishedPeople);
+ eventNavigation.replaceChildren();
+ if (view !== 'detail') showEventNavigation(isEventPage ? eventChapter : null);
+ if ((isBrowse || view === 'people') && !sameChapter) openContents(eraNavigation);
+ if (isEventPage) {
+  if (!sameChapter) {
+   input.value = '';
+   openContents(eventNavigation);
+  }
+  showEraNavigation('people', null, 'era');
+  if (page === 'event') showEventDetail(eventsById.get(value));
+  else showEventIndex(eventChapter);
+ } else if (view === 'search') {
+  showEraNavigation('people', 'all', 'era');
   showSearch(value);
  } else if (view === 'detail') {
   if (detail) showDetail(detail);
@@ -449,9 +523,10 @@ function render(moveFocus) {
  }
  window.scrollTo(0, 0);
  document.querySelector('#section-title')?.focus({preventScroll: true});
- const currentEra = eraNavigation.querySelector('[aria-current]');
- if (currentEra && eraNavigation.scrollWidth > eraNavigation.clientWidth) {
-  eraNavigation.scrollLeft = currentEra.offsetLeft - eraNavigation.offsetLeft - 12;
+ const activeNavigation = isEventPage ? eventNavigation : eraNavigation;
+ const currentLink = activeNavigation.querySelector('[aria-current]');
+ if (currentLink && activeNavigation.scrollWidth > activeNavigation.clientWidth) {
+  activeNavigation.scrollLeft = currentLink.offsetLeft - activeNavigation.offsetLeft - 12;
  }
 }
 document.querySelector('#search').addEventListener('submit', event => {

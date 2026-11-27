@@ -3,54 +3,52 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>그날의 기록 — 한국사 인물책</title>
+<title>인물과 장면</title>
 <link rel="stylesheet" href="book-intro.css">
 <link rel="stylesheet" href="archive-book.css">
 </head>
 <body>
-<dialog id="book-intro" class="book-intro" aria-label="그날의 기록 표지">
+<dialog id="book-intro" class="book-intro" aria-label="인물과 장면 표지">
   <div class="intro-stage">
-    <button class="intro-book" type="button" aria-label="그날의 기록 표지 열기">
+    <button class="intro-book" type="button" aria-label="인물과 장면 표지 열기">
       <span class="intro-volume" aria-hidden="true">
         <span class="intro-back"></span>
         <span class="intro-pages"></span>
-        <span class="intro-title-page"><small>한국사 인물 사전</small><strong>그날의 기록</strong></span>
+        <span class="intro-title-page"><strong>인물과 장면</strong><small>한국사의 인물·사건·작품</small></span>
         <span class="intro-leaf intro-leaf--one"></span>
         <span class="intro-leaf intro-leaf--two"></span>
         <span class="intro-cover">
           <span class="intro-cover-front">
-            <span class="intro-cover-edition">한국사 인물 사전</span>
-            <strong class="intro-cover-title">그날의 기록</strong>
+            <span class="intro-cover-edition">한국사의 인물·사건·작품</span>
+            <strong class="intro-cover-title">인물과 장면</strong>
             <span class="intro-cover-seal">史</span>
           </span>
           <span class="intro-cover-inside"></span>
         </span>
       </span>
     </button>
-    <div class="intro-commands">
-      <button class="intro-open" type="button" autofocus>사전 펼치기</button>
-      <button class="intro-skip" type="button">바로 들어가기</button>
-    </div>
+    <button class="intro-open" type="button" autofocus>사전 펼치기</button>
   </div>
 </dialog>
 <header class="site-header">
-  <a class="brand" href="#home"><span class="seal" aria-hidden="true">史</span>그날의 기록</a>
-  <div class="site-header-actions">
-    <nav class="chapter-nav" aria-label="주 메뉴">
-      <a href="#people">인물 차례</a>
-      <a href="#index">표제어</a>
-      <a href="#works">작품</a>
-    </nav>
-    <button id="intro-replay" class="intro-replay" type="button" hidden>표지 다시 보기</button>
-  </div>
+  <a class="brand" href="#home"><span class="seal" aria-hidden="true">史</span>인물과 장면</a>
+  <nav class="chapter-nav" aria-label="주 메뉴">
+    <a href="#people">인물 차례</a>
+    <a href="#works">작품</a>
+  </nav>
 </header>
 <main id="archive-book" class="archive-book">
-  <h1 class="sr">그날의 기록</h1>
+  <h1 class="sr">인물과 장면</h1>
   <aside class="book-contents" aria-labelledby="contents-title">
     <div class="book-contents-inner">
-      <p class="contents-edition">한국사 인물 사전</p>
-      <h2 id="contents-title">시대별 차례</h2>
-      <nav id="era-navigation" class="era-nav" aria-label="시대 선택"></nav>
+      <p class="contents-edition">한국사의 인물·사건·작품</p>
+      <h2 id="contents-title">차례</h2>
+      <div class="contents-controls">
+        <button id="era-toggle" type="button" aria-expanded="true" aria-controls="era-navigation">1. 시대별 차례</button>
+        <button id="event-toggle" type="button" aria-expanded="false" aria-controls="event-navigation">2. 사건별 차례</button>
+      </div>
+      <nav id="era-navigation" class="contents-panel era-nav" aria-label="시대 선택"></nav>
+      <nav id="event-navigation" class="contents-panel event-nav" aria-label="사건 시대 선택" hidden></nav>
     </div>
   </aside>
   <div class="book-page">
@@ -58,7 +56,7 @@
       <div id="page-heading"></div>
       <form id="search" role="search">
         <label class="sr" for="query">검색어</label>
-        <input id="query" type="search" placeholder="인물, 별칭, 작품 제목으로 검색" required>
+        <input id="query" type="search" placeholder="인물, 사건, 작품으로 검색" required>
         <button type="submit">검색</button>
       </form>
       <nav class="examples" aria-label="빠른 검색">
@@ -66,15 +64,17 @@
         <a href="#search/김구">김구</a>
         <a href="#search/유관순">유관순</a>
         <a href="#entry/dj">김대중</a>
-        <a href="#search/1987">1987</a>
+        <a href="#event/hansan-battle">한산도대첩</a>
       </nav>
     </div>
     <section id="content" aria-labelledby="section-title"></section>
     <span class="page-turn" aria-hidden="true"></span>
   </div>
 </main>
-<footer>그날의 기록 · 한국사 인물 사전</footer>
+<footer>인물과 장면 · 한국사의 인물·사건·작품</footer>
 <script src="archive-catalogue.js"></script>
+<script src="history-events.js"></script>
+<script src="event-index.js"></script>
 <script src="archive.js"></script>
 <script src="book-intro.js"></script>
 </body>
